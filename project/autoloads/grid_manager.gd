@@ -1,10 +1,6 @@
 extends Node
 
 var _cells: Dictionary = {}
-var _tile_query: TileQuery = TileQuery.new()
-
-func initialize(layers: Array[TileMapLayer]) -> void:
-	_tile_query.initialize(layers)
 
 func register(entity: Entity, cell: Vector2i) -> void:
 	_cells[cell] = entity
@@ -29,4 +25,4 @@ func is_occupied(cell: Vector2i) -> bool:
 	return _cells.has(cell)
 
 func is_cell_available(cell: Vector2i) -> bool:
-	return _tile_query.is_walkable(cell) and not is_occupied(cell)
+	return TileManager.is_walkable(cell) and not is_occupied(cell)

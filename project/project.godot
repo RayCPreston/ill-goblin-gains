@@ -17,10 +17,12 @@ config/features=PackedStringArray("4.6", "GL Compatibility")
 [autoload]
 
 Constants="*uid://dn4xu7g43lada"
-WorldGrid="*uid://mc6pbe4hleqr"
+GridManager="*uid://mc6pbe4hleqr"
 TurnManager="*uid://ds0m51wbeb6fb"
 PlayerInput="*uid://buekmcf6fhvx4"
 Log="*uid://xcftfqiaggi7"
+TileManager="*uid://ckox3k0qij4sc"
+VisionManager="*uid://b71acyyxwxjsu"
 
 [display]
 

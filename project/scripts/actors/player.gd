@@ -1,9 +1,14 @@
 class_name Player
 extends Entity
 
+signal vision_updated(cells: Dictionary)
+
+var fov: PlayerFov = PlayerFov.new()
+
 func _ready() -> void:
 	super()
 	TurnManager.register_player(self)
+	call_deferred("_compute_fov")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not TurnManager.is_player_turn():
@@ -17,3 +22,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		var direction: Vector2i = PlayerInput.get_move_direction(event)
 		try_move_to(cell + direction)
 	get_viewport().set_input_as_handled()
+
+func move_to(to_cell: Vector2i) -> void:
+	super(to_cell)
+	_compute_fov()
+
+func wait() -> void:
+	_compute_fov()
+	super()
+
+func _compute_fov() -> void:
+	print("[FOV] computing at cell=%s  TileManager ready=%s" % [cell, TileManager.is_opaque(cell)])
+	vision_updated.emit(fov.compute(cell))

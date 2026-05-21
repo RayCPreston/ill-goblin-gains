@@ -10,4 +10,6 @@ texture = ExtResource("1_eb2bm")
 [resource]
 custom_data_layer_0/name = "is_walkable"
 custom_data_layer_0/type = 1
+custom_data_layer_1/name = "is_opaque"
+custom_data_layer_1/type = 1
 sources/0 = SubResource("TileSetAtlasSource_g3mbb")
