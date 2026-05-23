@@ -1,13 +1,20 @@
 class_name Entity
 extends Node2D
 
-@export var is_passable: bool = false
-@export var is_interactable: bool = false
 @export var entity_name: String = ""
-@export var hide_if_not_visible = true
-@export var tween_duration: float = 0.1
+@export var can_swap: bool = false
+@export var can_overlap: bool = false
+@export var is_interactable: bool = false
+@export var is_furniture: bool = false
+@export var hide_if_not_visible: bool = true
+@export var can_hide_player: bool = false
+@export var blocks_vision = false
+@export var allows_player_vision: bool = false
+@export var tween_duration: float = 0.3
 
 signal turn_ended
+
+enum  Proximity { NONE, ADJACENT, OVERLAPPED }
 
 var cell: Vector2i
 var _tween: Tween
@@ -26,19 +33,24 @@ func interact(_source: Entity) -> void:
 func take_turn() -> void:
 	pass
 
+func on_proximity_changed(_proximity: Proximity, _entity: Entity) -> void:
+	pass
+
 func end_turn() -> void:
 	turn_ended.emit()
 
 func try_move_to(to_cell: Vector2i) -> void:
-	var occupant: Entity = GridManager.get_entity_at_cell(to_cell)
-	if occupant and occupant.is_passable:
+	var furniture: Entity = GridManager.get_furniture_at_cell(to_cell)
+	if furniture and not furniture.can_overlap:
+		end_turn()
+		return
+	var occupant: Entity = GridManager.get_actor_at_cell(to_cell)
+	if occupant and occupant.can_swap:
 		swap_with(occupant)
 	elif occupant and occupant.is_interactable:
 		occupant.interact(self)
 	elif GridManager.is_cell_available(to_cell):
 		move_to(to_cell)
-	else:
-		pass
 	end_turn()
 
 func wait() -> void:

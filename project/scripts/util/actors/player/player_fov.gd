@@ -2,7 +2,7 @@ class_name PlayerFov
 
 enum VisionState { UNSEEN, REMEMBERED, VISIBLE }
 
-var max_range = 10
+var max_range = 50
 var _memory: Dictionary = {}
 
 func compute(origin: Vector2i) -> Dictionary:
@@ -38,6 +38,16 @@ func _is_symmetric(origin: Vector2i, quadrant: int, row: int, col: int, start_sl
 		and float(col) >= float(row) * start_slope \
 		and float(col) <= float(row) * end_slope
 
+func _is_opaque(cell: Vector2i) -> bool:
+	if TileManager.is_opaque(cell):
+		return true
+	var furniture: Entity = GridManager.get_furniture_at_cell(cell)
+	if not furniture:
+		return false
+	if furniture.allows_player_vision:
+		return false
+	return furniture.blocks_vision
+
 func _scan(origin: Vector2i, quadrant: int, row: int, start_slope: float, end_slope: float) -> void:
 	if row > max_range:
 		return
@@ -48,7 +58,7 @@ func _scan(origin: Vector2i, quadrant: int, row: int, start_slope: float, end_sl
 	var prev_was_opaque: bool = false
 	for col in range(min_col, max_col + 1):
 		var cell: Vector2i = _transform(origin, quadrant, row, col)
-		var is_opaque: bool = TileManager.is_opaque(cell)
+		var is_opaque: bool = _is_opaque(cell)
 		var is_symmetric: bool = _is_symmetric(origin, quadrant, row, col, start_slope, end_slope)
 		if is_opaque or is_symmetric:
 			_memory[cell] = VisionState.VISIBLE
