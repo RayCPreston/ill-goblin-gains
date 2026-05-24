@@ -32,5 +32,4 @@ func wait() -> void:
 	super()
 
 func _compute_fov() -> void:
-	print("[FOV] computing at cell=%s  TileManager ready=%s" % [cell, TileManager.is_opaque(cell)])
 	vision_updated.emit(fov.compute(cell))

@@ -14,7 +14,6 @@ const MOVE_INPUT: Dictionary = {
 }
 
 func get_input_action(event: InputEvent) -> Action:
-	Log.debug("Input received:" + str(event))
 	if event.is_action_pressed("wait"):
 		return Action.WAIT
 	for move_input in MOVE_INPUT:

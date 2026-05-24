@@ -8,6 +8,7 @@ func _ready() -> void:
 	_sprite.play("closed")
 
 func on_proximity_changed(proximity: Proximity, entity: Entity) -> void:
+	print("proximity changed: %s" % proximity)
 	match proximity:
 		Proximity.NONE:
 			set_closed()

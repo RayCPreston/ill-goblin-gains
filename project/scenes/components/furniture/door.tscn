@@ -50,7 +50,6 @@ z_index = 2
 script = ExtResource("1_j8a1s")
 can_overlap = true
 is_furniture = true
-hide_if_not_visible = false
 blocks_vision = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=864068385]
