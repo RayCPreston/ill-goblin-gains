@@ -23,6 +23,7 @@ PlayerInput="*uid://buekmcf6fhvx4"
 Log="*uid://xcftfqiaggi7"
 TileManager="*uid://ckox3k0qij4sc"
 VisionManager="*uid://b71acyyxwxjsu"
+MapConfig="*uid://db08gojtbogco"
 
 [display]
 

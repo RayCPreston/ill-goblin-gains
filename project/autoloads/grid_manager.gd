@@ -4,11 +4,9 @@ var _actors: Dictionary = {}
 var _furniture: Dictionary = {}
 
 func register_actor(entity: Entity, cell: Vector2i) -> void:
-	print("registering actor:", entity.entity_name)
 	_actors[cell] = entity
 
 func register_furniture(entity: Entity, cell: Vector2i) -> void:
-	print("registering furniture:", entity.entity_name)
 	_furniture[cell] = entity
 
 func unregister_actor(cell: Vector2i) -> void:
