@@ -139,6 +139,8 @@ The generation algorithm will be constrained by definitions stored as JSON.  The
 - MacGuffin location
 - Engine placement
 
+Additionally, the map size will be dynamic based on the selected resolution of the player.  They can pick a smaller resolution and get a smaller heist experience.  Or they can pick a ultra-wide and get a big experience.  The minimum and maximum values will be clamped so it can't get too ridiculous.  This should also make mobile support possible.
+
 ### World States
 The world state can be either `NORMAL` or `ALERT`.  
 

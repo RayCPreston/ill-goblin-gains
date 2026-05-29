@@ -24,15 +24,14 @@ Log="*uid://xcftfqiaggi7"
 TileManager="*uid://ckox3k0qij4sc"
 VisionManager="*uid://b71acyyxwxjsu"
 MapConfig="*uid://db08gojtbogco"
-ResolutionManager="uid://064net1s1iar"
+ResolutionManager="*uid://064net1s1iar"
 
 [display]
 
-window/size/viewport_width=640
-window/size/viewport_height=360
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/size/resizable=false
 window/size/borderless=true
-window/stretch/mode="viewport"
 window/stretch/scale_mode="integer"
 
 [input]
