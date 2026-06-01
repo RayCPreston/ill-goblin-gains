@@ -7,4 +7,4 @@ func get_snapped_scale() -> float:
 	var scale_x: float = available_width / MapConfig.get_map_pixel_width()
 	var scale_y: float = available_height / MapConfig.get_map_pixel_height()
 	var min_scale: float = minf(scale_x, scale_y)
-	return max(min_scale)
+	return maxf(floorf(min_scale), 1.0)

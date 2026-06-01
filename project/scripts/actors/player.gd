@@ -9,6 +9,7 @@ func _ready() -> void:
 	super()
 	TurnManager.register_player(self)
 	call_deferred("_compute_fov")
+	call_deferred("_emit_position")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not TurnManager.is_player_turn():
@@ -25,6 +26,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func move_to(to_cell: Vector2i) -> void:
 	super(to_cell)
+	GameEvents.player_pos_updated.emit(position)
 	_compute_fov()
 
 func wait() -> void:
@@ -33,3 +35,6 @@ func wait() -> void:
 
 func _compute_fov() -> void:
 	vision_updated.emit(fov.compute(cell))
+
+func _emit_position() -> void:
+	GameEvents.player_pos_updated.emit(position)

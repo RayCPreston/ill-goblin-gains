@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b3k10f6u7014p" path="res://scripts/level/level.gd" id="1_14kdo"]
 [ext_resource type="TileSet" uid="uid://bs3gimkrvupse" path="res://resources/floor-tileset.tres" id="1_l7un8"]
+[ext_resource type="PackedScene" uid="uid://b35hyickwu7gr" path="res://scenes/levels/camera.tscn" id="2_mjplg"]
 [ext_resource type="TileSet" uid="uid://df3vvcob8ar6d" path="res://resources/wall-tileset.tres" id="2_rx5dp"]
 [ext_resource type="Script" uid="uid://bxcsmlx2iri70" path="res://scripts/util/tiles/tile_util.gd" id="3_mjplg"]
 [ext_resource type="PackedScene" uid="uid://cdkwtgyxdrb53" path="res://scenes/components/furniture/door.tscn" id="5_14kdo"]
@@ -10,6 +11,8 @@
 
 [node name="Node2D" type="Node2D" unique_id=72799890]
 script = ExtResource("1_14kdo")
+
+[node name="Node2D" parent="." unique_id=2049264114 instance=ExtResource("2_mjplg")]
 
 [node name="floor-layer" type="TileMapLayer" parent="." unique_id=1659423347]
 z_index = 1
