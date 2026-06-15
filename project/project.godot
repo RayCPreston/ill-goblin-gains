@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Treasure Goblin"
+config/name="ill-goblin-gains"
 run/main_scene="uid://dyqchykcif8rj"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 
