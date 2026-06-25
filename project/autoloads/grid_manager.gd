@@ -2,6 +2,13 @@ extends Node
 
 var _actors: Dictionary = {}
 var _furniture: Dictionary = {}
+var _player: Player = null
+
+func register_player(player: Player) -> void:
+	_player = player
+
+func get_player() -> Player:
+	return _player
 
 func register_actor(entity: Entity, cell: Vector2i) -> void:
 	_actors[cell] = entity

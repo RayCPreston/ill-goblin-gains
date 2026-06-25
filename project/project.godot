@@ -27,6 +27,7 @@ MapConfig="*uid://db08gojtbogco"
 ResolutionManager="*uid://064net1s1iar"
 CameraInput="*uid://cmqcrdixrqoje"
 GameEvents="*uid://bsnftyuxi7s5t"
+WorldState="*uid://yrbcqufiggkc"
 
 [display]
 

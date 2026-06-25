@@ -4,10 +4,11 @@ const HALF_ARC_DEGREES: float = 27.5
 const INNER_RANGE: int = 3
 const OUTER_RANGE: int = 8
 
-func compute(origin: Vector2i, facing: Guard.Facing) -> Array[Array]:
+func compute(origin: Vector2i, facing: Guard.Facing, half_arc_degrees: float = HALF_ARC_DEGREES) -> Array[Array]:
 	var inner: Array[Vector2i] = []
 	var outer: Array[Vector2i] = []
 	var facing_angle: float = float(facing)
+	var full_circle: bool = half_arc_degrees >= 180.0
 	for dx in range(-OUTER_RANGE, OUTER_RANGE + 1):
 		for dy in range(-OUTER_RANGE, OUTER_RANGE + 1):
 			var target: Vector2i = origin + Vector2i(dx, dy)
@@ -16,7 +17,7 @@ func compute(origin: Vector2i, facing: Guard.Facing) -> Array[Array]:
 			var dist: float = maxf(absf(float(dx)), absf(float(dy)))
 			if dist > OUTER_RANGE:
 				continue
-			if not _in_arc(dx, dy, facing_angle):
+			if not full_circle and not _in_arc(dx, dy, facing_angle):
 				continue
 			if not _has_los(origin, target):
 				continue
