@@ -26,4 +26,6 @@ func end_player_turn() -> void:
 func run_world_turn() -> void:
 	for entity in _world_entities:
 		entity.take_turn()
+	if WorldState.alert_level == WorldState.AlertLevel.ALERT:
+		WorldState.tick_tracking()
 	_phase = Phase.PLAYER
