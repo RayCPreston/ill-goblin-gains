@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://ddj16o7xecmam"]
 
 [ext_resource type="Texture2D" uid="uid://cqum52j8jic7k" path="res://assets/sprites/furniture/chest.png" id="1_gl621"]
+[ext_resource type="Script" path="res://scripts/components/macguffin.gd" id="2_macguffin"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_t6aig"]
 atlas = ExtResource("1_gl621")
@@ -34,6 +35,7 @@ size = Vector2(16, 16)
 
 [node name="Node2D" type="Node2D" unique_id=512516804]
 z_index = 3
+script = ExtResource("2_macguffin")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1369604503]
 z_index = 3

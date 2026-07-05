@@ -7,6 +7,9 @@ func initialize(layers: Array[TileMapLayer]) -> void:
 	_layers = layers
 	_build_pathfinding_grid()
 
+func is_in_bounds(cell: Vector2i) -> bool:
+	return cell.x >= 0 and cell.x < MapConfig.map_tile_width and cell.y >= 0 and cell.y < MapConfig.map_tile_height
+
 func is_walkable(cell: Vector2i) -> bool:
 	if _layers.is_empty():
 		Log.warn("TileQuery: no TileMapLayers initiated.")

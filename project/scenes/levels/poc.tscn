@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cdkwtgyxdrb53" path="res://scenes/components/furniture/door.tscn" id="5_14kdo"]
 [ext_resource type="PackedScene" uid="uid://c8j8wx37be5o0" path="res://scenes/actors/goblin.tscn" id="5_hxsix"]
 [ext_resource type="PackedScene" uid="uid://djbf04gdrychm" path="res://scenes/actors/guard.tscn" id="6_6h6sj"]
+[ext_resource type="PackedScene" uid="uid://ddj16o7xecmam" path="res://scenes/components/furniture/chest.tscn" id="7_mgria"]
 
 [node name="Node2D" type="Node2D" unique_id=72799890]
 script = ExtResource("1_14kdo")
@@ -90,10 +91,13 @@ position = Vector2(592, 176)
 [node name="Node2D20" parent="furniture/doors" unique_id=142476709 instance=ExtResource("5_14kdo")]
 position = Vector2(1136, 320)
 
+[node name="chest" parent="furniture" unique_id=512516804 instance=ExtResource("7_mgria")]
+position = Vector2(592, 320)
+
 [node name="actors" type="Node" parent="." unique_id=1966979684]
 
 [node name="goblin" parent="actors" unique_id=437332451 instance=ExtResource("5_hxsix")]
-position = Vector2(576, 336)
+position = Vector2(1136, 320)
 
 [node name="guards" type="Node" parent="actors" unique_id=975133677]
 
@@ -110,7 +114,7 @@ position = Vector2(608, 560)
 position = Vector2(1008, 64)
 
 [node name="guard5" parent="actors/guards" unique_id=1706974674 instance=ExtResource("6_6h6sj")]
-position = Vector2(1008, 320)
+position = Vector2(880, 480)
 
 [node name="guard6" parent="actors/guards" unique_id=1485634821 instance=ExtResource("6_6h6sj")]
 position = Vector2(128, 512)

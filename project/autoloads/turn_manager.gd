@@ -20,6 +20,8 @@ func is_player_turn() -> bool:
 	return _phase == Phase.PLAYER
 
 func end_player_turn() -> void:
+	if RunState.is_run_over:
+		return
 	_phase = Phase.WORLD
 	run_world_turn()
 

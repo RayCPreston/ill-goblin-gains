@@ -24,14 +24,23 @@ var _state: GuardStateMachine
 
 func _ready() -> void:
 	can_be_remembered = false
+	is_interactable = true
 	super()
 	_state = GuardStateMachine.new(self)
 	VisionManager.initialize_guard(self)
 	TurnManager.register_world_entity(self)
 	call_deferred("compute_vision")
 
+func _exit_tree() -> void:
+	super()
+	TurnManager.unregister_world_entity(self)
+
 func take_turn() -> void:
 	_state.process_turn()
+
+func interact(source: Entity) -> void:
+	if source is Player:
+		RunState.lose("Captured by a guard.")
 
 # -- Vision --
 
@@ -59,7 +68,9 @@ func step_along_path() -> void:
 		wait()
 		return
 	var next_cell: Vector2i = _path[0]
-	if not GridManager.is_cell_available(next_cell):
+	var occupant: Entity = GridManager.get_actor_at_cell(next_cell)
+	var occupant_interactable: bool = occupant != null and occupant.is_interactable
+	if not GridManager.is_cell_available(next_cell) and not occupant_interactable:
 		_path.clear()
 		wait()
 		return
