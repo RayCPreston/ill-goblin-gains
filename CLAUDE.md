@@ -15,7 +15,7 @@ Turn-based stealth roguelike in Godot 4 (GDScript). Player is a goblin infiltrat
 ## Core Conventions
 - **No physics.** All movement, collision, and spatial queries go through `GridManager` dictionaries and `TileManager`.
 - **Grid dictionary pattern.** Spatial data keyed by `Vector2i` cell positions, O(1) lookup.
-- **Autoloads for all managers.** `TurnManager`, `GridManager`, `TileManager`, `VisionManager`, `WorldState`, `GameEvents`, `MapConfig`, `Constants`, `PlayerInput`, `CameraInput`, `Log`, `ResolutionManager`.
+- **Autoloads for all managers.** `TurnManager`, `GridManager`, `TileManager`, `VisionManager`, `WorldState`, `RunState`, `GameEvents`, `MapConfig`, `Constants`, `PlayerInput`, `CameraInput`, `Log`, `ResolutionManager`.
 - **Entity base class.** All actors and furniture inherit `Entity`. Movement via `try_move_to` → `move_to` → `tweened_move`. Turn end via `end_turn()` signal.
 - **Signals for upward communication.** Children emit signals, parents/autoloads connect.
 - **Self-registration in `_ready()`.** Entities register themselves with managers.
@@ -45,6 +45,15 @@ Fully grid-based, no physics. All spatial logic through `GridManager` dictionari
 
 ### Doors
 Proximity-driven open/peek/closed states. Peeked state blocks guard vision but player can see through. Guards cannot open doors yet (planned: humans can, dogs cannot).
+
+### Session End — Fully Implemented
+Capture, a placeholder MacGuffin, a win condition, and a restart loop all work end to end. See `docs/stories/session-end-definitions.md` for the full story (status: implemented).
+- Capture is bidirectional via `Entity.is_interactable`/`interact()`: `Guard.interact()` and `Player.interact()` each call `RunState.lose()` when the other type is the source. `Guard.step_along_path()` lets a move through to `try_move_to()` when the blocking occupant is interactable, so a guard walking into the player triggers it too (not just the reverse).
+- MacGuffin is a placeholder: the existing `chest.tscn` scene got a `macguffin.gd` script (furniture, `can_overlap = true`), sets `RunState.has_macguffin = true` on player overlap. No JSON, no on-pickup effect yet — intentionally deferred to the Trait & Equipment System below, since the GDD's MacGuffin behavior (e.g. a barking corgi) is mechanically a hook trait.
+- Win is simplified: walking off the map edge (`TileManager.is_in_bounds()` check in `Player.try_move_to()`) while holding the MacGuffin triggers `RunState.win()`. No dedicated Exit entity yet — reasonable placeholder, will likely need a real exit (tied to a door/room) once procgen exists.
+- `RunState` (new autoload) holds `has_macguffin`, `is_run_over`, `outcome`. `GameEvents.run_ended(won, cause)` signal drives a modal `EndScreen` (`scenes/ui/end_screen.tscn`) showing outcome + cause.
+- `TurnManager` and `Player._unhandled_input` both check `RunState.is_run_over` to freeze the run.
+- Restart: `restart` input action (R key) in `Level._unhandled_input()` resets `WorldState`, `RunState`, and guard cones, then reloads the scene.
 
 ## What's Next
 
