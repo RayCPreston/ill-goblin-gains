@@ -3,6 +3,8 @@ extends Entity
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+var _current_animation: StringName = &"closed"
+
 func _ready() -> void:
 	is_furniture = true
 	blocks_vision = true
@@ -21,16 +23,26 @@ func on_proximity_changed(proximity: Proximity, entity: Entity) -> void:
 			set_open()
 
 func set_closed() -> void:
-	_sprite.play("closed")
 	blocks_vision = true
 	allows_player_vision = false
+	_set_animation(&"closed")
 
 func set_peeked() -> void:
-	_sprite.play("peeked")
 	blocks_vision = true
 	allows_player_vision = true
+	_set_animation(&"peeked")
 
 func set_open() -> void:
-	_sprite.play("open")
 	blocks_vision = false
 	allows_player_vision = true
+	_set_animation(&"open")
+
+func refresh_visibility() -> void:
+	super()
+	if VisionManager.get_state(cell) == PlayerFov.VisionState.VISIBLE:
+		_sprite.play(_current_animation)
+
+func _set_animation(anim: StringName) -> void:
+	_current_animation = anim
+	if VisionManager.get_state(cell) == PlayerFov.VisionState.VISIBLE:
+		_sprite.play(anim)
