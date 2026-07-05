@@ -53,7 +53,7 @@ func _cell_rect(cell: Vector2i) -> Rect2:
 	var tile_size: int = Constants.TILE_SIZE
 	return Rect2(cell.x * tile_size, cell.y * tile_size, tile_size, tile_size)
 
-func _clear_guard_cones() -> void:
+func clear_guard_cones() -> void:
 	_guard_cones.clear()
 
 func _on_vision_updated(cells: Dictionary) -> void:
