@@ -7,6 +7,8 @@ const COLOR_YELLOW: Color = Color.YELLOW
 const COLOR_RED: Color = Color.RED
 const ALERT_SEARCH_RANGE: int = 8
 const TRACKING_MEMORY: int = 5
+const POI_SEARCH_HOPS: int = 2
+const POI_SEARCH_RADIUS: int = 3
 
 var poi: Vector2i
 var patrol_target: Vector2i
@@ -14,8 +16,9 @@ var _sm: StateMachine = StateMachine.new()
 var _guard: Guard
 var _last_seen_direction: Vector2i = Vector2i.ZERO
 var _last_player_cell: Vector2i = Vector2i.ZERO
-var _player_visible_last_turn: bool = false
+var _has_prior_sighting: bool = false
 var _tracking_turns: int = 0
+var _search_hops_remaining: int = 0
 
 func _init(guard: Guard) -> void:
 	_guard = guard
@@ -58,30 +61,48 @@ func _check_detection() -> void:
 	var in_outer: bool = player_cell in _guard.get_outer_zone()
 	var can_see: bool = in_inner or in_outer
 	if can_see:
-		if _player_visible_last_turn and player_cell != _last_player_cell:
-			_last_seen_direction = player_cell - _last_player_cell
+		if _has_prior_sighting and player_cell != _last_player_cell:
+			_last_seen_direction = _step_direction(player_cell - _last_player_cell)
 		_last_player_cell = player_cell
-		_player_visible_last_turn = true
+		_has_prior_sighting = true
 		_tracking_turns = TRACKING_MEMORY
+		_search_hops_remaining = POI_SEARCH_HOPS
 		if in_inner:
 			_on_inner_detection(player_cell)
 		else:
 			_on_outer_detection(player_cell)
 	else:
-		_player_visible_last_turn = false
 		_tick_tracking()
+
+func _step_direction(delta: Vector2i) -> Vector2i:
+	return Vector2i(signi(delta.x), signi(delta.y))
 
 func _tick_tracking() -> void:
 	if _tracking_turns <= 0 or _last_seen_direction == Vector2i.ZERO:
 		return
 	_tracking_turns -= 1
-	if _sm.current_state == State.CURIOUS:
-		var projected: Vector2i = poi + _last_seen_direction
-		if TileManager.is_walkable(projected):
-			poi = projected
-			_guard.clear_path()
-		else:
-			_tracking_turns = 0
+	if _sm.current_state != State.CURIOUS:
+		return
+	var projected: Vector2i = _resolve_projection(poi, _last_seen_direction)
+	if projected == poi:
+		_tracking_turns = 0
+		return
+	poi = projected
+	_guard.clear_path()
+
+func _resolve_projection(from: Vector2i, direction: Vector2i) -> Vector2i:
+	var straight: Vector2i = from + direction
+	if TileManager.is_walkable(straight):
+		return straight
+	if direction.x != 0:
+		var horizontal: Vector2i = from + Vector2i(direction.x, 0)
+		if TileManager.is_walkable(horizontal):
+			return horizontal
+	if direction.y != 0:
+		var vertical: Vector2i = from + Vector2i(0, direction.y)
+		if TileManager.is_walkable(vertical):
+			return vertical
+	return from
 
 func _on_inner_detection(player_cell: Vector2i) -> void:
 	WorldState.set_lkp(player_cell, _last_seen_direction)
@@ -115,14 +136,34 @@ func _do_patrol() -> void:
 func _do_curious() -> void:
 	if _guard.is_path_empty():
 		if _guard.cell == poi:
-			_sm.transition(State.PATROL)
-			_guard.navigate_to(patrol_target)
-			_guard.step_along_path()
-			return
-		_guard.navigate_to(poi)
-		if _guard.is_path_empty():
-			_sm.transition(State.PATROL)
+			if _search_hops_remaining > 0:
+				_search_hops_remaining -= 1
+				poi = _pick_search_point(poi)
+				_guard.navigate_to(poi)
+				if _guard.is_path_empty():
+					_search_hops_remaining = 0
+			else:
+				_sm.transition(State.PATROL)
+				_guard.navigate_to(patrol_target)
+				_guard.step_along_path()
+				return
+		else:
+			_guard.navigate_to(poi)
+			if _guard.is_path_empty():
+				_sm.transition(State.PATROL)
+				return
 	_guard.step_along_path()
+
+func _pick_search_point(origin: Vector2i) -> Vector2i:
+	for i in range(20):
+		var candidate: Vector2i = origin + Vector2i(
+			randi_range(-POI_SEARCH_RADIUS, POI_SEARCH_RADIUS),
+			randi_range(-POI_SEARCH_RADIUS, POI_SEARCH_RADIUS)
+		)
+		if candidate == origin or not TileManager.is_walkable(candidate):
+			continue
+		return candidate
+	return origin
 
 func _do_alert() -> void:
 	if WorldState.has_lkp:
