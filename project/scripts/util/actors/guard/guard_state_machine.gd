@@ -6,7 +6,7 @@ const COLOR_GREEN: Color = Color.LIME
 const COLOR_YELLOW: Color = Color.YELLOW
 const COLOR_RED: Color = Color.RED
 const ALERT_SEARCH_RANGE: int = 8
-const TRACKING_MEMORY: int = 5
+const TRACKING_MEMORY: int = 3
 const POI_SEARCH_HOPS: int = 2
 const POI_SEARCH_RADIUS: int = 3
 
