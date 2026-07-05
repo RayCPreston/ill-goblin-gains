@@ -24,3 +24,4 @@ func _end_run(result: Outcome, cause: String) -> void:
 	outcome = result
 	var outcome_label: String = "WIN" if result == Outcome.WIN else "LOSS"
 	Log.info("Run over — %s: %s" % [outcome_label, cause])
+	GameEvents.run_ended.emit(result == Outcome.WIN, cause)
