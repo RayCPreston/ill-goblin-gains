@@ -4,6 +4,7 @@ extends Entity
 signal vision_updated(cells: Dictionary)
 
 var fov: PlayerFov = PlayerFov.new()
+var noise_radius: int = 2
 
 func _ready() -> void:
 	is_interactable = true
@@ -45,6 +46,7 @@ func move_to(to_cell: Vector2i) -> void:
 	super(to_cell)
 	GameEvents.player_pos_updated.emit(position)
 	_compute_fov()
+	_emit_noise()
 
 func wait() -> void:
 	_compute_fov()
@@ -52,6 +54,13 @@ func wait() -> void:
 
 func _compute_fov() -> void:
 	vision_updated.emit(fov.compute(cell))
+
+func _emit_noise() -> void:
+	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, noise_radius)
+	for alerted_cell: Vector2i in alerted_cells:
+		var actor: Entity = GridManager.get_actor_at_cell(alerted_cell)
+		if actor is Guard:
+			actor.react_to_proximity(cell)
 
 func _emit_position() -> void:
 	GameEvents.player_pos_updated.emit(position)
