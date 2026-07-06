@@ -56,6 +56,7 @@ func _compute_fov() -> void:
 	vision_updated.emit(fov.compute(cell))
 
 func _emit_noise() -> void:
+	GameEvents.sound_emitted.emit(cell_center_to_world(cell), float(noise_radius * Constants.TILE_SIZE))
 	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, noise_radius)
 	for alerted_cell: Vector2i in alerted_cells:
 		var actor: Entity = GridManager.get_actor_at_cell(alerted_cell)

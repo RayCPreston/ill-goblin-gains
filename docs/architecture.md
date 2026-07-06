@@ -9,13 +9,14 @@
 | `GridManager` | Node | `_actors` dict, `_furniture` dict (both keyed by `Vector2i`), player reference, proximity notifications |
 | `TileManager` | Node | `TileMapLayer` refs, walkability/opacity queries, `AStarGrid2D` pathfinding |
 | `VisionManager` | Node2D | Player FOV state, guard cone data, `_draw` cone rendering (z_index 3) |
-| `GameEvents` | Node | Global signals (`player_pos_updated`, zoom) |
+| `GameEvents` | Node | Global signals (`player_pos_updated`, zoom, `sound_emitted`) |
 | `MapConfig` | Node | Map tile dimensions, pixel size helpers |
 | `Constants` | Node | `TILE_SIZE = 16`, direction vectors |
 | `PlayerInput` | Node | Input action mapping |
 | `CameraInput` | Node | Camera zoom/pan input |
 | `Log` | Node | Logging wrapper |
 | `ResolutionManager` | Node | Resolution handling |
+| `VfxManager` | Node2D | Listens for VFX-trigger signals (`GameEvents.sound_emitted`), instances real-time effect nodes as children |
 
 ## Entity Hierarchy
 
@@ -86,6 +87,14 @@ When `WorldState.has_lkp` is true, all ALERT guards navigate toward `WorldState.
 - Wall tiles excluded from cone tint (presentation-only; cone data still includes walls for detection queries).
 - When `is_segmented` is false (ALERT), outer alpha matches inner — uniform intensity.
 
+## VFX (Juice)
+
+Real-time, turn-independent presentation layer — distinct from every other system, which resolves instantly in tile/turn space. Nodes animate over wall-clock seconds via `_process(delta)` rather than `RefCounted` calculate-and-return utilities.
+
+- **Trigger:** gameplay code emits a `GameEvents` signal (e.g. `sound_emitted(world_position, pixel_radius)`) alongside its instant gameplay resolution — never instances VFX nodes directly, keeping presentation decoupled from gameplay.
+- **`VfxManager`** (autoload, `Node2D`) listens for those signals and instances the corresponding effect script as a child at the given world position.
+- **`SoundPulse`** (`scripts/vfx/sound_pulse.gd`, `Node2D`) — grows a ring from radius 0 to a target over `DURATION` seconds, fading alpha alongside, via `_draw()`; frees itself on completion. Spawned on every completed player move at `Player.noise_radius * Constants.TILE_SIZE`. Multiple concurrent pulses are expected and independent (no debouncing).
+
 ## Pathfinding
 
 `AStarGrid2D` on `TileManager`, built once after layers are set. `DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES` prevents squeezing through wall corners. `HEURISTIC_OCTILE` for 8-direction grids. `find_path(from, to)` returns `Array[Vector2i]` with origin stripped.
@@ -106,6 +115,4 @@ SOUTH=90, SOUTH_WEST=135, WEST=180, NORTH_WEST=225
 - Patrol routes — removed from scope; random destinations (overridden by POI in CURIOUS and LKP/range-clamped destinations in ALERT) are working well and considered sufficient
 - WorldState.ALERT driven by non-guard entities (cameras, laser traps — architecture supports it, no entities exist yet)
 - Procedural generation (design in `docs/procgen.md`, not blocking current work)
-- Sound system / hearing radius
-- Inventory / MacGuffin pickup
-- Win/loss conditions
+- Inventory / MacGuffin pickup (placeholder only — see `CLAUDE.md`)
