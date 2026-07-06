@@ -70,7 +70,7 @@ func _check_detection() -> void:
 		if in_inner:
 			_on_inner_detection(player_cell)
 		else:
-			_on_outer_detection(player_cell)
+			react_to_proximity(player_cell)
 	else:
 		_tick_tracking()
 
@@ -108,17 +108,17 @@ func _on_inner_detection(player_cell: Vector2i) -> void:
 	WorldState.set_lkp(player_cell, _last_seen_direction)
 	_sm.transition(State.ALERT)
 
-func _on_outer_detection(player_cell: Vector2i) -> void:
+func react_to_proximity(source_cell: Vector2i) -> void:
 	match _sm.current_state:
 		State.PATROL:
-			poi = player_cell
+			poi = source_cell
 			patrol_target = _guard.cell
 			_sm.transition(State.CURIOUS)
 		State.CURIOUS:
-			poi = player_cell
+			poi = source_cell
 			_guard.clear_path()
 		State.ALERT:
-			WorldState.set_lkp(player_cell, _last_seen_direction)
+			WorldState.set_lkp(source_cell, _last_seen_direction)
 			_guard.clear_path()
 
 # -- Enter callbacks --
