@@ -107,3 +107,6 @@ func world_to_cell(world_pos: Vector2) -> Vector2i:
 
 func cell_to_world(grid_pos: Vector2i) -> Vector2:
 	return Vector2(grid_pos * Constants.TILE_SIZE)
+
+func cell_center_to_world(grid_pos: Vector2i) -> Vector2:
+	return cell_to_world(grid_pos) + Vector2(Constants.TILE_SIZE, Constants.TILE_SIZE) / 2.0

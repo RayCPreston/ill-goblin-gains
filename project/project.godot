@@ -29,6 +29,7 @@ CameraInput="*uid://cmqcrdixrqoje"
 GameEvents="*uid://bsnftyuxi7s5t"
 WorldState="*uid://yrbcqufiggkc"
 RunState="*res://autoloads/run_state.gd"
+VfxManager="*res://autoloads/vfx_manager.gd"
 
 [display]
 
