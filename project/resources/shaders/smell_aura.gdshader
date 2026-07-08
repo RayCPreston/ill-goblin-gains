@@ -2,17 +2,45 @@ shader_type canvas_item;
 
 uniform vec2 rect_size = vec2(128.0, 128.0);
 uniform float radius = 64.0;
-uniform float edge_softness = 6.0;
-uniform vec4 fill_color : source_color = vec4(0.75, 0.45, 0.1, 0.28);
-uniform vec4 line_color : source_color = vec4(0.85, 0.5, 0.1, 0.22);
-uniform float line_count : hint_range(3.0, 12.0) = 7.0;
-uniform float line_width = 1.4;
-uniform float wave_amplitude = 5.5;
-uniform float wave_frequency = 0.2;
-uniform float wave_speed = 1.4;
+uniform float edge_softness = 5.0;
+uniform float edge_noise_amplitude = 6.0;
+uniform float edge_noise_speed = 0.5;
+uniform vec4 color_a : source_color = vec4(0.45, 0.42, 0.12, 0.32);
+uniform vec4 color_b : source_color = vec4(0.32, 0.2, 0.08, 0.32);
+uniform float color_noise_scale = 0.06;
+uniform float color_shift_speed = 0.15;
 
-float wrap_angle(float a) {
-	return mod(a + PI, TAU) - PI;
+float hash1(float n) {
+	return fract(sin(n) * 43758.5453123);
+}
+
+float value_noise1(float x) {
+	float i = floor(x);
+	float f = fract(x);
+	float a = hash1(i);
+	float b = hash1(i + 1.0);
+	return mix(a, b, smoothstep(0.0, 1.0, f));
+}
+
+float edge_noise(float angle, float t) {
+	float n = value_noise1(angle * 3.0 + t) * 0.6
+			+ value_noise1(angle * 7.0 - t * 1.6) * 0.4;
+	return n * 2.0 - 1.0;
+}
+
+float hash2(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float value_noise2(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	float a = hash2(i);
+	float b = hash2(i + vec2(1.0, 0.0));
+	float c = hash2(i + vec2(0.0, 1.0));
+	float d = hash2(i + vec2(1.0, 1.0));
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
 void fragment() {
@@ -20,21 +48,13 @@ void fragment() {
 	float dist = length(pos);
 	float angle = atan(pos.y, pos.x);
 
-	float fill_alpha = 1.0 - smoothstep(radius - edge_softness, radius, dist);
+	float wobble = edge_noise(angle, TIME * edge_noise_speed) * edge_noise_amplitude;
+	float edge_radius = radius + wobble;
+	float fill_alpha = 1.0 - smoothstep(edge_radius - edge_softness, edge_radius, dist);
 
-	float sector = TAU / line_count;
-	float arm_angle = round(angle / sector) * sector;
-	float delta = wrap_angle(angle - arm_angle);
-	float lateral = dist * delta;
-	float wave = sin(dist * wave_frequency + TIME * wave_speed + arm_angle * 3.0) * wave_amplitude;
-	float line_dist = abs(lateral - wave);
-	float line_mask = 1.0 - smoothstep(line_width * 0.5, line_width * 1.5, line_dist);
+	vec2 drift = vec2(TIME * color_shift_speed, TIME * color_shift_speed * 0.7);
+	float color_n = value_noise2(pos * color_noise_scale + drift);
+	vec4 color = mix(color_a, color_b, color_n);
 
-	float fade_in = smoothstep(0.0, radius * 0.25, dist);
-	float fade_out = 1.0 - smoothstep(radius * 0.55, radius * 0.9, dist);
-	float line_alpha = line_mask * fade_in * fade_out;
-
-	vec4 color = mix(fill_color, line_color, line_alpha);
-	float alpha = max(fill_color.a * fill_alpha, line_color.a * line_alpha);
-	COLOR = vec4(color.rgb, alpha);
+	COLOR = vec4(color.rgb, color.a * fill_alpha);
 }

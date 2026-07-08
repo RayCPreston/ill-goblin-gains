@@ -2,7 +2,7 @@ class_name GuardFov
 
 const HALF_ARC_DEGREES: float = 27.5
 const INNER_RANGE: int = 3
-const OUTER_RANGE: int = 8
+const OUTER_RANGE: int = 6
 
 func compute(origin: Vector2i, facing: Guard.Facing, half_arc_degrees: float = HALF_ARC_DEGREES) -> Array[Array]:
 	var inner: Array[Vector2i] = []
