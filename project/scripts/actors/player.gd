@@ -5,7 +5,7 @@ signal vision_updated(cells: Dictionary)
 
 var fov: PlayerFov = PlayerFov.new()
 var noise_radius: int = 2
-var smell_radius: int = 4
+var smell_radius: int = 3
 
 func _ready() -> void:
 	is_interactable = true

@@ -16,7 +16,7 @@ script = ExtResource("1_14kdo")
 
 [node name="Node2D" parent="." unique_id=2049264114 instance=ExtResource("2_mjplg")]
 
-[node name="EndScreen" parent="." instance=ExtResource("8_end_screen")]
+[node name="EndScreen" parent="." unique_id=1033243332 instance=ExtResource("8_end_screen")]
 
 [node name="floor-layer" type="TileMapLayer" parent="." unique_id=1659423347]
 z_index = 1
