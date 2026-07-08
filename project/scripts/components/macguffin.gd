@@ -5,12 +5,12 @@ extends Entity
 
 func _ready() -> void:
 	is_furniture = true
-	can_overlap = true
+	is_interactable = true
 	super()
 	_sprite.play("closed")
 
-func on_proximity_changed(proximity: Proximity, entity: Entity) -> void:
-	if proximity == Proximity.OVERLAPPED and entity is Player and not RunState.has_macguffin:
+func interact(source: Entity) -> void:
+	if source is Player and not RunState.has_macguffin:
 		RunState.has_macguffin = true
 		_sprite.play("open")
 		Log.info("MacGuffin acquired.")

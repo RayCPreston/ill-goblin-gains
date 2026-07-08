@@ -48,6 +48,8 @@ func end_turn() -> void:
 func try_move_to(to_cell: Vector2i) -> void:
 	var furniture: Entity = GridManager.get_furniture_at_cell(to_cell)
 	if furniture and not furniture.can_overlap:
+		if furniture.is_interactable:
+			furniture.interact(self)
 		end_turn()
 		return
 	var occupant: Entity = GridManager.get_actor_at_cell(to_cell)
