@@ -20,6 +20,8 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if RunState.is_run_over:
 		return
+	if UiState.modal_open:
+		return
 	if not TurnManager.is_player_turn():
 		return
 	var action: PlayerInput.Action = PlayerInput.get_input_action(event)

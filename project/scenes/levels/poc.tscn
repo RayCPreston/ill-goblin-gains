@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://djbf04gdrychm" path="res://scenes/actors/guard.tscn" id="6_6h6sj"]
 [ext_resource type="PackedScene" uid="uid://ddj16o7xecmam" path="res://scenes/components/furniture/chest.tscn" id="7_mgria"]
 [ext_resource type="PackedScene" path="res://scenes/ui/end_screen.tscn" id="8_end_screen"]
+[ext_resource type="PackedScene" path="res://scenes/ui/traits_modal.tscn" id="9_traits_modal"]
 
 [node name="Node2D" type="Node2D" unique_id=72799890]
 script = ExtResource("1_14kdo")
@@ -17,6 +18,8 @@ script = ExtResource("1_14kdo")
 [node name="Node2D" parent="." unique_id=2049264114 instance=ExtResource("2_mjplg")]
 
 [node name="EndScreen" parent="." unique_id=1033243332 instance=ExtResource("8_end_screen")]
+
+[node name="TraitsModal" parent="." instance=ExtResource("9_traits_modal")]
 
 [node name="floor-layer" type="TileMapLayer" parent="." unique_id=1659423347]
 z_index = 1
