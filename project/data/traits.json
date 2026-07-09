@@ -59,5 +59,18 @@
       "operation": "delta",
       "value": 3
     }
+  },
+  {
+    "id": "butterfingers",
+    "name": "Butterfingers",
+    "type": "negative",
+    "description": "You can only throw equipment 2 tiles less far than normal range.",
+    "dormant_until": "Throwing/equipment system exists",
+    "effect": {
+      "kind": "stat",
+      "property": "throw_range",
+      "operation": "delta",
+      "value": -2
+    }
   }
 ]
