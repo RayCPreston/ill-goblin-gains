@@ -10,5 +10,17 @@
       "operation": "set",
       "value": 0
     }
+  },
+  {
+    "id": "keen_eyes",
+    "name": "Keen Eyes",
+    "type": "positive",
+    "description": "Your vision range is increased by 3 tiles.",
+    "effect": {
+      "kind": "stat",
+      "property": "vision_range",
+      "operation": "delta",
+      "value": 3
+    }
   }
 ]
