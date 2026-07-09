@@ -15,7 +15,7 @@ Turn-based stealth roguelike in Godot 4 (GDScript). Player is a goblin infiltrat
 ## Core Conventions
 - **No physics.** All movement, collision, and spatial queries go through `GridManager` dictionaries and `TileManager`.
 - **Grid dictionary pattern.** Spatial data keyed by `Vector2i` cell positions, O(1) lookup.
-- **Autoloads for all managers.** `TurnManager`, `GridManager`, `TileManager`, `VisionManager`, `WorldState`, `RunState`, `GameEvents`, `MapConfig`, `Constants`, `PlayerInput`, `CameraInput`, `Log`, `ResolutionManager`, `VfxManager`, `GameData`, `UiState`.
+- **Autoloads for all managers.** `TurnManager`, `GridManager`, `TileManager`, `VisionManager`, `WorldState`, `RunState`, `GameEvents`, `MapConfig`, `Constants`, `PlayerInput`, `CameraInput`, `Log`, `ResolutionManager`, `VfxManager`, `GameData`, `UiState`, `GameManager`.
 - **Entity base class.** All actors and furniture inherit `Entity`. Movement via `try_move_to` → `move_to` → `tweened_move`. Turn end via `end_turn()` signal.
 - **Signals for upward communication.** Children emit signals, parents/autoloads connect.
 - **Self-registration in `_ready()`.** Entities register themselves with managers.
@@ -62,7 +62,7 @@ Capture, a placeholder MacGuffin, a win condition, and a restart loop all work e
 - Win is simplified: walking off the map edge (`TileManager.is_in_bounds()` check in `Player.try_move_to()`) while holding the MacGuffin triggers `RunState.win()`. No dedicated Exit entity yet — reasonable placeholder, will likely need a real exit (tied to a door/room) once procgen exists.
 - `RunState` (autoload) holds `has_macguffin`, `is_run_over`, `outcome`. `GameEvents.run_ended(won, cause)` signal drives a modal `EndScreen` (`scenes/ui/end_screen.tscn`) showing outcome + cause.
 - `TurnManager` and `Player._unhandled_input` both check `RunState.is_run_over` to freeze the run.
-- Restart: `restart` input action (R key) in `Level._unhandled_input()` resets `WorldState`, `RunState`, and guard cones, then reloads the scene.
+- Restart: `restart` input action (R key) in `GameManager._unhandled_input()` resets `WorldState`, `RunState`, and guard cones, then reloads the scene.
 
 ## What's Next
 
@@ -73,14 +73,14 @@ Being built incrementally, one trait story at a time, per `docs/stories/game-dat
 - `GameData` autoload (`project/autoloads/game_data.gd`) loads trait definitions from `project/data/traits.json`, validates each definition's effect kind/property against an authored known-set at load time (logs via `Log.error` and drops anything unrecognized — no silent no-ops on a typo), and applies effects to the player through an authored dispatch (`match` on property name, currently `stat`-kind only). No reflection (`Object.set()`/`set_indexed()`) anywhere.
 - `PlayerTraitState` (`project/scripts/util/actors/player/player_trait_state.gd`, `RefCounted`), held as `Player.traits`, mirrors the `Player.fov: PlayerFov` pattern. Holds `applied_ids`; will grow narrow, purpose-named accessor methods (one per `detection_modifier`/`flag`/`charge`/`perception`/`chance` effect) as later stories need them.
 - Hard architectural rule, enforced from here on: every gameplay call site a trait touches (`GuardStateMachine._check_detection()`, `Guard.interact()`, `MacGuffin.on_proximity_changed()`, etc.) gets exactly one clean, narrowly-named method call — never a `match`/`if` chain on a trait id/effect kind/property name outside `GameData` and `PlayerTraitState`.
-- Placeholder run-start trigger lives in `Level._ready()` (`GameData.apply_traits([...], GridManager.get_player())`, hardcoded id list) until the real Run Start Flow below exists.
+- Placeholder run-start trigger lives in `GameManager` (`GameData.apply_traits([...], GridManager.get_player())`, hardcoded id list), triggered by `GameEvents.level_ready` (emitted from `Level._ready()`) until the real Run Start Flow below exists.
 
 **Padfoot** (`stat`, sets `Player.noise_radius` to 0) is the only trait wired end-to-end so far. Remaining traits land one PR at a time, in the order listed in the epic.
 
 **Traits modal (character screen) — landed (Story 02):** `C` (`character_menu` input action) toggles `TraitsModal` (`scenes/ui/traits_modal.tscn` / `scripts/ui/traits_modal.gd`, a shown/hidden `CanvasLayer` following the `EndScreen` precedent), listing the player's applied traits numbered 1–n; pressing a number shows that trait's name/description via `GameData.get_definition(id)`. New `UiState` autoload (`modal_open: bool`) blocks `Player._unhandled_input()` while any modal is open, without consuming a turn — the same pattern `RunState.is_run_over` already uses.
 
 ### 2. Run Start Flow
-The game currently drops straight into gameplay with no framing. Needed: main menu and a run start sequence. Traits and equipment are randomly rolled at session start (n positive, m negative — see GDD for counts and pool), replacing the hardcoded id list `Level._ready()` uses today.
+The game currently drops straight into gameplay with no framing. Needed: main menu and a run start sequence. Traits and equipment are randomly rolled at session start (n positive, m negative — see GDD for counts and pool), replacing the hardcoded id list `GameManager` uses today.
 
 ### 3. Furniture & Hiding System
 Furniture is partially modeled: `Entity.is_furniture`, `Entity.can_hide_player` (field already exists, unused), `GridManager._furniture` dict. Needs: JSON definitions with a `hideable` field, player hide/unhide action, and guard detection interaction when player is hidden. See GDD for furniture types and hiding rules.
