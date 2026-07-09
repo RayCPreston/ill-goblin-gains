@@ -43,7 +43,7 @@ Bridges each trait's data to where it actually needs to be read in code. Consoli
 |---|---|---|
 | `noise_radius` | `Player.noise_radius` | Direct field (per the proximity-alert-system story) |
 | `vision_range` | `Player.fov.max_range` (`PlayerFov.max_range`) | Nested under `Player.fov`, not a direct `Player` field |
-| `throw_range` | *(reserved, not yet implemented)* | Needs the throwing/equipment system |
+| `throw_range` | `Player.throw_range` | Direct field, written by `GameData` like `noise_radius` — dormant until a throwing/equipment system reads it |
 | `guard_inner_range` | `GuardFov.INNER_RANGE`, applied per-guard against this player | Belongs in `GuardStateMachine._check_detection()`, not `GuardFov` itself — keeps FOV computation player-agnostic |
 | `guard_tracking_memory` | `GuardStateMachine.TRACKING_MEMORY`, per-guard against this player | Same reasoning as above |
 | `guard_search_hops` | `GuardStateMachine.POI_SEARCH_HOPS`, per-guard against this player | Same reasoning as above |

@@ -6,6 +6,7 @@ extends Node
 const KNOWN_STAT_PROPERTIES: Array[String] = [
 	"noise_radius",
 	"vision_range",
+	"throw_range",
 ]
 
 const TRAITS_PATH: String = "res://data/traits.json"
@@ -77,6 +78,8 @@ func _apply_stat(effect: Dictionary, player: Player) -> void:
 			player.noise_radius = _resolve(operation, player.noise_radius, value)
 		"vision_range":
 			player.fov.max_range = _resolve(operation, player.fov.max_range, value)
+		"throw_range":
+			player.throw_range = _resolve(operation, player.throw_range, value)
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:

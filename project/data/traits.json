@@ -46,5 +46,18 @@
       "operation": "delta",
       "value": -3
     }
+  },
+  {
+    "id": "pitcher",
+    "name": "Pitcher",
+    "type": "positive",
+    "description": "You can throw equipment up to 3 tiles further than normal range.",
+    "dormant_until": "Throwing/equipment system exists",
+    "effect": {
+      "kind": "stat",
+      "property": "throw_range",
+      "operation": "delta",
+      "value": 3
+    }
   }
 ]
