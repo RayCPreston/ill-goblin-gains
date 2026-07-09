@@ -52,7 +52,7 @@ The functional goal is straightforward. The architectural goal is the one Ray fl
 5. No file outside `GameData` and the new trait-state utility contains a `match`/`if` chain keyed on a trait id, effect kind, or property/parameter/flag/trigger name. Every consuming call site (`GuardStateMachine`, `Guard`, `Player`, `MacGuffin`) reads as a single method call.
 6. Applying the 8 "fully wired" traits (individually) to the player produces their described behavior, verifiable by observation/playtesting.
 7. Applying the 4 "data-ready, deferred" traits doesn't error — their values are stored and queryable via `PlayerTraitState` even though no consumer reads them yet.
-8. Since there's no real Run Start Flow yet, trigger the roll-and-apply step from a placeholder integration point — `Level._ready()` is the natural fit (it already does startup wiring via `TileManager.initialize()`) — applying a fixed test list of trait ids, not random rolling.
+8. Since there's no real Run Start Flow yet, trigger the roll-and-apply step from a placeholder integration point — `GameManager._on_level_ready()` (see `docs/stories/level-cleanup-game-manager.md`; connects to `GameEvents.level_ready`, emitted once `Level._ready()` finishes its own scene setup) — applying a fixed test list of trait ids, not random rolling.
 
 ## Technical Notes
 
@@ -83,7 +83,7 @@ Naming/exact signatures are a judgment call for whoever implements this — the 
 
 **Narcolepsy's sleep mechanism (deferred, but the shape is worth recording).** `is_sleeping` belongs on `Entity`, not `Player` — Ray's direction, so a future item like sleeping darts can put a `Guard` to sleep with the same flag and whatever enforcement logic eventually gets built, rather than duplicating it later. Enforcement itself (enforcing the sleeping entity skips its turn/input for the duration) isn't designed yet.
 
-**Placeholder run-start trigger.** No main menu exists yet (`CLAUDE.md`'s Run Start Flow item). Matching the precedent set by Session End (map-edge win in place of a real Exit entity) and the Proximity Alert work (hardcoded default radius, no trait wiring yet), this epic should call its roll-and-apply step from `Level._ready()` with a hardcoded trait id list, not attempt to build any part of the menu/rolling UI.
+**Placeholder run-start trigger.** No main menu exists yet (`CLAUDE.md`'s Run Start Flow item). Matching the precedent set by Session End (map-edge win in place of a real Exit entity) and the Proximity Alert work (hardcoded default radius, no trait wiring yet), this epic should call its roll-and-apply step from `GameManager` (see `docs/stories/level-cleanup-game-manager.md`) with a hardcoded trait id list, not attempt to build any part of the menu/rolling UI. This moved off `Level._ready()` once the GameManager extraction story landed — if that story hasn't landed yet in your working copy, `Level._ready()` is still the fallback trigger point.
 
 ## Open Questions
 - One `traits.json` array vs. one file per trait — implementation's call, not specified here.

@@ -17,6 +17,7 @@
 | `Log` | Node | Logging wrapper |
 | `ResolutionManager` | Node | Resolution handling |
 | `VfxManager` | Node2D | Listens for VFX-trigger signals (`GameEvents.sound_emitted`), instances real-time effect nodes as children |
+| `GameManager` | Node | Run-lifecycle logic: restart input handling, placeholder starting-traits trigger on `GameEvents.level_ready` |
 
 ## Entity Hierarchy
 

@@ -32,6 +32,7 @@ RunState="*res://autoloads/run_state.gd"
 VfxManager="*res://autoloads/vfx_manager.gd"
 GameData="*res://autoloads/game_data.gd"
 UiState="*res://autoloads/ui_state.gd"
+GameManager="*res://autoloads/game_manager.gd"
 
 [display]
 
