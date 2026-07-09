@@ -58,7 +58,7 @@ Proximity-driven open/peek/closed states. Peeked state blocks guard vision but p
 ### Session End — Fully Implemented
 Capture, a placeholder MacGuffin, a win condition, and a restart loop all work end to end.
 - Capture is bidirectional via `Entity.is_interactable`/`interact()`: `Guard.interact()` and `Player.interact()` each call `RunState.lose()` when the other type is the source. `Guard.step_along_path()` lets a move through to `try_move_to()` when the blocking occupant is interactable, so a guard walking into the player triggers it too (not just the reverse).
-- MacGuffin is a placeholder: the existing `chest.tscn` scene got a `macguffin.gd` script (furniture, `can_overlap = true`), sets `RunState.has_macguffin = true` on player overlap. No JSON, no on-pickup effect yet — intentionally deferred to the Trait & Equipment System below, since the GDD's MacGuffin behavior (e.g. a barking corgi) is mechanically a hook trait.
+- MacGuffin is a placeholder: the existing `chest.tscn` scene got a `macguffin.gd` script (furniture, `is_interactable = true`, blocks movement). Picked up via the same bump-interact pattern as guard capture (`interact()`, triggered when `try_move_to()` finds an interactable occupant at the target cell) — bumping it already costs a turn like any other action, via the existing unconditional `end_turn()`. No JSON, no on-pickup effect yet — intentionally deferred to the Trait & Equipment System below, since the GDD's MacGuffin behavior (e.g. a barking corgi) is mechanically a hook trait.
 - Win is simplified: walking off the map edge (`TileManager.is_in_bounds()` check in `Player.try_move_to()`) while holding the MacGuffin triggers `RunState.win()`. No dedicated Exit entity yet — reasonable placeholder, will likely need a real exit (tied to a door/room) once procgen exists.
 - `RunState` (autoload) holds `has_macguffin`, `is_run_over`, `outcome`. `GameEvents.run_ended(won, cause)` signal drives a modal `EndScreen` (`scenes/ui/end_screen.tscn`) showing outcome + cause.
 - `TurnManager` and `Player._unhandled_input` both check `RunState.is_run_over` to freeze the run.
@@ -70,33 +70,11 @@ Capture, a placeholder MacGuffin, a win condition, and a restart loop all work e
 The game currently drops straight into gameplay with no framing. Needed: main menu and a run start sequence. Traits and equipment are randomly rolled at session start (n positive, m negative — see GDD for counts and pool). A `GameData` autoload will load trait/equipment JSON and apply them to the player before the run begins.
 
 ### 2. Trait & Equipment JSON System
-Two trait types have a working design:
+Full schema and all 23 traits (12 positive, 11 negative) are locked and authored in `docs/traits.md`. The original property/hook-only design didn't survive contact with real content — six effect kinds now exist (`stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`), since most traits turned out to be contextual gameplay modifiers or probabilistic events, not simple stat deltas or generic turn-end hooks.
 
-**Property traits** — directly modify a player stat at run start:
-```json
-{
-  "id": "soft_soled_shoes",
-  "name": "Soft-soled Shoes",
-  "type": "positive",
-  "description": "Your noise radius is reduced by 1.",
-  "property": "noise_radius",
-  "delta": -1
-}
-```
+Implementation architecture is specced in `docs/stories/game-data-trait-application.md` (status: not started). Hard requirement, not a preference: every gameplay call site a trait touches (`GuardStateMachine._check_detection()`, `Guard.interact()`, `MacGuffin.on_proximity_changed()`, etc.) gets exactly one clean, narrowly-named method call via a new `PlayerTraitState` utility (mirrors the existing `Player.fov: PlayerFov` pattern) — never a `match`/`if` chain on trait names inlined into critical logic. No reflection (`Object.set()`/`set_indexed()`) anywhere in the system either — dispatch is authored and curated, concentrated in `GameData` alone.
 
-**Hook traits** — register an effect that fires each turn via `TurnManager`:
-```json
-{
-  "id": "smelly",
-  "name": "Smelly",
-  "type": "negative",
-  "description": "Guards within 5 tiles are put into CURIOUS state each turn.",
-  "hook": "on_turn_end",
-  "params": { "radius": 5 }
-}
-```
-
-Needs: JSON files authored from the GDD trait/equipment lists, schema finalized, `GameData` autoload implemented. No JSON data files or `GameData` autoload exist in the repo yet — this is greenfield.
+No JSON data files or `GameData` autoload exist in the repo yet — this is greenfield.
 
 ### 3. Furniture & Hiding System
 Furniture is partially modeled: `Entity.is_furniture`, `Entity.can_hide_player` (field already exists, unused), `GridManager._furniture` dict. Needs: JSON definitions with a `hideable` field, player hide/unhide action, and guard detection interaction when player is hidden. See GDD for furniture types and hiding rules.
