@@ -32,6 +32,7 @@ func process_turn() -> void:
 	_guard.compute_vision()
 	_check_detection()
 	_sm.execute()
+	_guard.compute_vision()
 
 func get_current_state() -> int:
 	return _sm.current_state
@@ -57,22 +58,30 @@ func _check_world_escalation() -> void:
 
 func _check_detection() -> void:
 	var player_cell: Vector2i = GridManager.get_player().cell
+	if not check_immediate_sighting(player_cell):
+		_tick_tracking()
+
+## Tests a specific cell against this guard's current vision zones and reacts
+## immediately if it overlaps. Callable ahead of the guard's own turn (see
+## Player._check_guard_sighting()) so a player caught in a cone can't dodge
+## detection just by moving away before this guard's process_turn() runs.
+## Returns true if the cell was seen.
+func check_immediate_sighting(player_cell: Vector2i) -> bool:
 	var in_inner: bool = player_cell in _guard.get_inner_zone()
 	var in_outer: bool = player_cell in _guard.get_outer_zone()
-	var can_see: bool = in_inner or in_outer
-	if can_see:
-		if _has_prior_sighting and player_cell != _last_player_cell:
-			_last_seen_direction = _step_direction(player_cell - _last_player_cell)
-		_last_player_cell = player_cell
-		_has_prior_sighting = true
-		_tracking_turns = TRACKING_MEMORY
-		_search_hops_remaining = POI_SEARCH_HOPS
-		if in_inner:
-			_on_inner_detection(player_cell)
-		else:
-			react_to_proximity(player_cell)
+	if not (in_inner or in_outer):
+		return false
+	if _has_prior_sighting and player_cell != _last_player_cell:
+		_last_seen_direction = _step_direction(player_cell - _last_player_cell)
+	_last_player_cell = player_cell
+	_has_prior_sighting = true
+	_tracking_turns = TRACKING_MEMORY
+	_search_hops_remaining = POI_SEARCH_HOPS
+	if in_inner:
+		_on_inner_detection(player_cell)
 	else:
-		_tick_tracking()
+		react_to_proximity(player_cell)
+	return true
 
 func _step_direction(delta: Vector2i) -> Vector2i:
 	return Vector2i(signi(delta.x), signi(delta.y))

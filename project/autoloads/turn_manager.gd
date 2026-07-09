@@ -16,6 +16,9 @@ func register_world_entity(entity: Entity) -> void:
 func unregister_world_entity(entity: Entity) -> void:
 	_world_entities.erase(entity)
 
+func get_world_entities() -> Array[Entity]:
+	return _world_entities
+
 func is_player_turn() -> bool:
 	return _phase == Phase.PLAYER
 

@@ -28,12 +28,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	var action: PlayerInput.Action = PlayerInput.get_input_action(event)
 	if action == PlayerInput.Action.NONE:
 		return
-	elif action == PlayerInput.Action.WAIT:
+	_check_guard_sighting()
+	if action == PlayerInput.Action.WAIT:
 		wait()
 	elif action == PlayerInput.Action.MOVE:
 		var direction: Vector2i = PlayerInput.get_move_direction(event)
 		try_move_to(cell + direction)
 	get_viewport().set_input_as_handled()
+
+func _check_guard_sighting() -> void:
+	for entity: Entity in TurnManager.get_world_entities():
+		if entity is Guard:
+			entity.check_immediate_sighting(cell)
 
 func try_move_to(to_cell: Vector2i) -> void:
 	if not TileManager.is_in_bounds(to_cell):
