@@ -2,7 +2,7 @@ class_name PlayerFov
 
 enum VisionState { UNSEEN, REMEMBERED, VISIBLE }
 
-var max_range = 15
+var max_range: int = 15
 var _memory: Dictionary = {}
 
 func compute(origin: Vector2i) -> Dictionary:
