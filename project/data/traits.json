@@ -1,0 +1,14 @@
+[
+  {
+    "id": "padfoot",
+    "name": "Padfoot",
+    "type": "positive",
+    "description": "Your noise radius is set to 0 — you never emit a sound pulse.",
+    "effect": {
+      "kind": "stat",
+      "property": "noise_radius",
+      "operation": "set",
+      "value": 0
+    }
+  }
+]

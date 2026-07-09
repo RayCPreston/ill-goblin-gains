@@ -4,6 +4,7 @@ extends Entity
 signal vision_updated(cells: Dictionary)
 
 var fov: PlayerFov = PlayerFov.new()
+var traits: PlayerTraitState = PlayerTraitState.new()
 var noise_radius: int = 2
 var smell_radius: int = 2
 
