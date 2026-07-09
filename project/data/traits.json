@@ -22,5 +22,17 @@
       "operation": "delta",
       "value": 3
     }
+  },
+  {
+    "id": "two_left_feet",
+    "name": "Two Left Feet",
+    "type": "negative",
+    "description": "Your noise radius is increased by 1.",
+    "effect": {
+      "kind": "stat",
+      "property": "noise_radius",
+      "operation": "delta",
+      "value": 1
+    }
   }
 ]
