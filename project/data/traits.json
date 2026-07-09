@@ -34,5 +34,17 @@
       "operation": "delta",
       "value": 1
     }
+  },
+  {
+    "id": "nearsighted",
+    "name": "Nearsighted",
+    "type": "negative",
+    "description": "Your vision range is reduced by 3 tiles.",
+    "effect": {
+      "kind": "stat",
+      "property": "vision_range",
+      "operation": "delta",
+      "value": -3
+    }
   }
 ]
