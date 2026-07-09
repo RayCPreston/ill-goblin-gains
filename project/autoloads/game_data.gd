@@ -14,6 +14,9 @@ var _definitions: Dictionary = {}
 func _ready() -> void:
 	_load_definitions()
 
+func get_definition(id: String) -> Dictionary:
+	return _definitions.get(id, {})
+
 func apply_traits(ids: Array[String], player: Player) -> void:
 	for id: String in ids:
 		if not _definitions.has(id):

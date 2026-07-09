@@ -15,7 +15,7 @@ Turn-based stealth roguelike in Godot 4 (GDScript). Player is a goblin infiltrat
 ## Core Conventions
 - **No physics.** All movement, collision, and spatial queries go through `GridManager` dictionaries and `TileManager`.
 - **Grid dictionary pattern.** Spatial data keyed by `Vector2i` cell positions, O(1) lookup.
-- **Autoloads for all managers.** `TurnManager`, `GridManager`, `TileManager`, `VisionManager`, `WorldState`, `RunState`, `GameEvents`, `MapConfig`, `Constants`, `PlayerInput`, `CameraInput`, `Log`, `ResolutionManager`.
+- **Autoloads for all managers.** `TurnManager`, `GridManager`, `TileManager`, `VisionManager`, `WorldState`, `RunState`, `GameEvents`, `MapConfig`, `Constants`, `PlayerInput`, `CameraInput`, `Log`, `ResolutionManager`, `VfxManager`, `GameData`, `UiState`.
 - **Entity base class.** All actors and furniture inherit `Entity`. Movement via `try_move_to` → `move_to` → `tweened_move`. Turn end via `end_turn()` signal.
 - **Signals for upward communication.** Children emit signals, parents/autoloads connect.
 - **Self-registration in `_ready()`.** Entities register themselves with managers.
@@ -48,7 +48,7 @@ Fully grid-based, no physics. All spatial logic through `GridManager` dictionari
 
 ### Proximity Alert System (Sound) — Fully Implemented
 - `ProximityAlert` (`scripts/util/proximity_alert.gd`) is a generic BFS flood-fill: `compute(origin, radius) -> Array[Vector2i]`, blocked by the same opacity/vision-blocking data `GuardFov` uses, with corner-cutting prevention matching `TileManager`'s `AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES` convention. Sound propagates like a gas (wraps corners) rather than vision's straight-line LOS.
-- Triggered on every completed `Player.move_to()` (not `wait()`) at `Player.noise_radius` (default 2, hardcoded — no trait system yet).
+- Triggered on every completed `Player.move_to()` (not `wait()`) at `Player.noise_radius` (default 2, overridable by traits — see Trait & GameData System below).
 - Every guard whose cell falls in the flood-filled area calls `react_to_proximity()`, reacting exactly as if it saw the player in its outer vision zone.
 - Deliberately generic and reusable: a future "Smelly" hook trait or thrown item (smoke bomb, alarm clock) can call the same `compute()` with a different origin/radius/trigger. Smoke bombs/gases need a *persistent, evolving* version (an expanding, dissipating cloud) — a meaningfully different problem, deferred to its own story once equipment exists.
 
@@ -66,15 +66,21 @@ Capture, a placeholder MacGuffin, a win condition, and a restart loop all work e
 
 ## What's Next
 
-### 1. Run Start Flow
-The game currently drops straight into gameplay with no framing. Needed: main menu and a run start sequence. Traits and equipment are randomly rolled at session start (n positive, m negative — see GDD for counts and pool). A `GameData` autoload will load trait/equipment JSON and apply them to the player before the run begins.
+### 1. Trait & GameData System — In Progress
+Being built incrementally, one trait story at a time, per `docs/stories/game-data-trait-application.md` (the epic) and `docs/stories/trait-story-NN-*.md` (per-trait stories, deleted from the repo as each lands). Full trait content (23 traits, six effect kinds: `stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`) is authored in `docs/traits.md`.
 
-### 2. Trait & Equipment JSON System
-Full schema and all 23 traits (12 positive, 11 negative) are locked and authored in `docs/traits.md`. The original property/hook-only design didn't survive contact with real content — six effect kinds now exist (`stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`), since most traits turned out to be contextual gameplay modifiers or probabilistic events, not simple stat deltas or generic turn-end hooks.
+**Architecture landed (Story 01):**
+- `GameData` autoload (`project/autoloads/game_data.gd`) loads trait definitions from `project/data/traits.json`, validates each definition's effect kind/property against an authored known-set at load time (logs via `Log.error` and drops anything unrecognized — no silent no-ops on a typo), and applies effects to the player through an authored dispatch (`match` on property name, currently `stat`-kind only). No reflection (`Object.set()`/`set_indexed()`) anywhere.
+- `PlayerTraitState` (`project/scripts/util/actors/player/player_trait_state.gd`, `RefCounted`), held as `Player.traits`, mirrors the `Player.fov: PlayerFov` pattern. Holds `applied_ids`; will grow narrow, purpose-named accessor methods (one per `detection_modifier`/`flag`/`charge`/`perception`/`chance` effect) as later stories need them.
+- Hard architectural rule, enforced from here on: every gameplay call site a trait touches (`GuardStateMachine._check_detection()`, `Guard.interact()`, `MacGuffin.on_proximity_changed()`, etc.) gets exactly one clean, narrowly-named method call — never a `match`/`if` chain on a trait id/effect kind/property name outside `GameData` and `PlayerTraitState`.
+- Placeholder run-start trigger lives in `Level._ready()` (`GameData.apply_traits([...], GridManager.get_player())`, hardcoded id list) until the real Run Start Flow below exists.
 
-Implementation architecture is specced in `docs/stories/game-data-trait-application.md` (status: not started). Hard requirement, not a preference: every gameplay call site a trait touches (`GuardStateMachine._check_detection()`, `Guard.interact()`, `MacGuffin.on_proximity_changed()`, etc.) gets exactly one clean, narrowly-named method call via a new `PlayerTraitState` utility (mirrors the existing `Player.fov: PlayerFov` pattern) — never a `match`/`if` chain on trait names inlined into critical logic. No reflection (`Object.set()`/`set_indexed()`) anywhere in the system either — dispatch is authored and curated, concentrated in `GameData` alone.
+**Padfoot** (`stat`, sets `Player.noise_radius` to 0) is the only trait wired end-to-end so far. Remaining traits land one PR at a time, in the order listed in the epic.
 
-No JSON data files or `GameData` autoload exist in the repo yet — this is greenfield.
+**Traits modal (character screen) — landed (Story 02):** `C` (`character_menu` input action) toggles `TraitsModal` (`scenes/ui/traits_modal.tscn` / `scripts/ui/traits_modal.gd`, a shown/hidden `CanvasLayer` following the `EndScreen` precedent), listing the player's applied traits numbered 1–n; pressing a number shows that trait's name/description via `GameData.get_definition(id)`. New `UiState` autoload (`modal_open: bool`) blocks `Player._unhandled_input()` while any modal is open, without consuming a turn — the same pattern `RunState.is_run_over` already uses.
+
+### 2. Run Start Flow
+The game currently drops straight into gameplay with no framing. Needed: main menu and a run start sequence. Traits and equipment are randomly rolled at session start (n positive, m negative — see GDD for counts and pool), replacing the hardcoded id list `Level._ready()` uses today.
 
 ### 3. Furniture & Hiding System
 Furniture is partially modeled: `Entity.is_furniture`, `Entity.can_hide_player` (field already exists, unused), `GridManager._furniture` dict. Needs: JSON definitions with a `hideable` field, player hide/unhide action, and guard detection interaction when player is hidden. See GDD for furniture types and hiding rules.
