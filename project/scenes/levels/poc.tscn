@@ -19,7 +19,7 @@ script = ExtResource("1_14kdo")
 
 [node name="EndScreen" parent="." unique_id=1033243332 instance=ExtResource("8_end_screen")]
 
-[node name="TraitsModal" parent="." instance=ExtResource("9_traits_modal")]
+[node name="TraitsModal" parent="." unique_id=416784454 instance=ExtResource("9_traits_modal")]
 
 [node name="floor-layer" type="TileMapLayer" parent="." unique_id=1659423347]
 z_index = 1

@@ -41,6 +41,9 @@ func take_turn() -> void:
 func react_to_proximity(source_cell: Vector2i) -> void:
 	_state.react_to_proximity(source_cell)
 
+func check_immediate_sighting(player_cell: Vector2i) -> bool:
+	return _state.check_immediate_sighting(player_cell)
+
 func interact(source: Entity) -> void:
 	if source is Player:
 		RunState.lose("Captured by a guard.")
