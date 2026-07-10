@@ -72,5 +72,17 @@
       "operation": "delta",
       "value": -2
     }
+  },
+  {
+    "id": "camouflage",
+    "name": "Camouflage",
+    "type": "positive",
+    "description": "Guards must be closer than normal to instantly spot you. You can still be noticed at normal range — this only softens the worst case.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_inner_range",
+      "operation": "delta",
+      "value": -1
+    }
   }
 ]

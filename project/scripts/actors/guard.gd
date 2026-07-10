@@ -62,7 +62,8 @@ func move_to(to: Vector2i) -> void:
 
 func compute_vision() -> void:
 	var half_arc: float = GuardFov.HALF_ARC_DEGREES if _state.get_current_state() == GuardStateMachine.State.PATROL else 180.0
-	var zones: Array[Array] = _fov.compute(cell, facing, half_arc)
+	var inner_range: int = GuardFov.INNER_RANGE + GridManager.get_player().traits.inner_range_modifier()
+	var zones: Array[Array] = _fov.compute(cell, facing, half_arc, inner_range)
 	_inner_zone = zones[0]
 	_outer_zone = zones[1]
 	cone_updated.emit(_inner_zone, _outer_zone, _state.get_cone_color(), _state.is_segmented())
