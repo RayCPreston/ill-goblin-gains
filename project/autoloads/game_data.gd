@@ -9,6 +9,13 @@ const KNOWN_STAT_PROPERTIES: Array[String] = [
 	"throw_range",
 ]
 
+## Authored dispatch: every recognized `detection_modifier`-kind parameter name
+## and the guard-side comparison it adjusts — see docs/traits.md's
+## Property/Parameter Reference.
+const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
+	"guard_inner_range",
+]
+
 const TRAITS_PATH: String = "res://data/traits.json"
 
 var _definitions: Dictionary = {}
@@ -58,6 +65,11 @@ func _validate(definition: Dictionary) -> bool:
 			if not KNOWN_STAT_PROPERTIES.has(property):
 				Log.error("GameData: unrecognized stat property '%s' on trait '%s'" % [property, id])
 				return false
+		"detection_modifier":
+			var parameter: String = effect.get("parameter", "")
+			if not KNOWN_DETECTION_MODIFIER_PARAMETERS.has(parameter):
+				Log.error("GameData: unrecognized detection_modifier parameter '%s' on trait '%s'" % [parameter, id])
+				return false
 		_:
 			Log.error("GameData: unrecognized effect kind '%s' on trait '%s'" % [kind, id])
 			return false
@@ -68,6 +80,8 @@ func _apply_effect(definition: Dictionary, player: Player) -> void:
 	var kind: String = effect.get("kind", "")
 	if kind == "stat":
 		_apply_stat(effect, player)
+	elif kind == "detection_modifier":
+		_apply_detection_modifier(effect, player)
 
 func _apply_stat(effect: Dictionary, player: Player) -> void:
 	var property: String = effect.get("property", "")
@@ -80,6 +94,14 @@ func _apply_stat(effect: Dictionary, player: Player) -> void:
 			player.fov.max_range = _resolve(operation, player.fov.max_range, value)
 		"throw_range":
 			player.throw_range = _resolve(operation, player.throw_range, value)
+
+func _apply_detection_modifier(effect: Dictionary, player: Player) -> void:
+	var parameter: String = effect.get("parameter", "")
+	var operation: String = effect.get("operation", "")
+	var value: int = int(effect.get("value", 0))
+	match parameter:
+		"guard_inner_range":
+			player.traits.set_inner_range_modifier(_resolve(operation, player.traits.inner_range_modifier(), value))
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:
