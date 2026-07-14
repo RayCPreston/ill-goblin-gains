@@ -14,6 +14,7 @@ const KNOWN_STAT_PROPERTIES: Array[String] = [
 ## Property/Parameter Reference.
 const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
 	"guard_inner_range",
+	"guard_tracking_memory",
 ]
 
 const TRAITS_PATH: String = "res://data/traits.json"
@@ -102,6 +103,8 @@ func _apply_detection_modifier(effect: Dictionary, player: Player) -> void:
 	match parameter:
 		"guard_inner_range":
 			player.traits.set_inner_range_modifier(_resolve(operation, player.traits.inner_range_modifier(), value))
+		"guard_tracking_memory":
+			player.traits.set_tracking_memory_modifier(_resolve(operation, player.traits.tracking_memory_modifier(), value))
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:

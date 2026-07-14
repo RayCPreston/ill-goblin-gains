@@ -96,5 +96,17 @@
       "operation": "delta",
       "value": 1
     }
+  },
+  {
+    "id": "cold_trail",
+    "name": "Cold Trail",
+    "type": "positive",
+    "description": "Guards give up tracking your projected position sooner after losing sight of you.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_tracking_memory",
+      "operation": "delta",
+      "value": -1
+    }
   }
 ]
