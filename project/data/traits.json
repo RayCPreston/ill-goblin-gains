@@ -84,5 +84,17 @@
       "operation": "delta",
       "value": -1
     }
+  },
+  {
+    "id": "big_target",
+    "name": "Big Target",
+    "type": "negative",
+    "description": "Guards notice you from slightly further away than normal.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_inner_range",
+      "operation": "delta",
+      "value": 1
+    }
   }
 ]
