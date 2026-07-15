@@ -22,6 +22,7 @@ const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
 ## capability it toggles — see docs/traits.md's Property/Parameter Reference.
 const KNOWN_FLAGS: Array[String] = [
 	"chest_opens_on_adjacent",
+	"emits_noise_while_waiting",
 ]
 
 const TRAITS_PATH: String = "res://data/traits.json"
@@ -128,6 +129,8 @@ func _apply_flag(effect: Dictionary, player: Player) -> void:
 	match flag:
 		"chest_opens_on_adjacent":
 			player.traits.set_chest_opens_on_adjacent(value)
+		"emits_noise_while_waiting":
+			player.traits.set_emits_noise_while_waiting(value)
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:

@@ -5,6 +5,7 @@ var _inner_range_modifier: int = 0
 var _tracking_memory_modifier: int = 0
 var _search_hops_modifier: int = 0
 var _chest_opens_on_adjacent: bool = false
+var _emits_noise_while_waiting: bool = false
 
 func get_applied_ids() -> Array[String]:
 	return applied_ids
@@ -32,3 +33,9 @@ func chest_opens_on_adjacent() -> bool:
 
 func set_chest_opens_on_adjacent(value: bool) -> void:
 	_chest_opens_on_adjacent = value
+
+func emits_noise_while_waiting() -> bool:
+	return _emits_noise_while_waiting
+
+func set_emits_noise_while_waiting(value: bool) -> void:
+	_emits_noise_while_waiting = value

@@ -63,6 +63,8 @@ func move_to(to_cell: Vector2i) -> void:
 func wait() -> void:
 	_compute_fov()
 	_emit_smell()
+	if traits.emits_noise_while_waiting():
+		_emit_noise()
 	super()
 
 func _compute_fov() -> void:
