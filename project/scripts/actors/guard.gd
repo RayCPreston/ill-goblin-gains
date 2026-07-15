@@ -46,6 +46,8 @@ func check_immediate_sighting(player_cell: Vector2i) -> bool:
 
 func interact(source: Entity) -> void:
 	if source is Player:
+		if source.traits.try_consume_capture_charge():
+			return
 		RunState.lose("Captured by a guard.")
 
 # -- Vision --

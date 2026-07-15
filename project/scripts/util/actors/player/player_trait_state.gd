@@ -6,6 +6,7 @@ var _tracking_memory_modifier: int = 0
 var _search_hops_modifier: int = 0
 var _chest_opens_on_adjacent: bool = false
 var _emits_noise_while_waiting: bool = false
+var _capture_charges: int = 0
 
 func get_applied_ids() -> Array[String]:
 	return applied_ids
@@ -39,3 +40,12 @@ func emits_noise_while_waiting() -> bool:
 
 func set_emits_noise_while_waiting(value: bool) -> void:
 	_emits_noise_while_waiting = value
+
+func add_capture_charges(amount: int) -> void:
+	_capture_charges += amount
+
+func try_consume_capture_charge() -> bool:
+	if _capture_charges <= 0:
+		return false
+	_capture_charges -= 1
+	return true

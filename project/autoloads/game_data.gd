@@ -25,6 +25,12 @@ const KNOWN_FLAGS: Array[String] = [
 	"emits_noise_while_waiting",
 ]
 
+## Authored dispatch: every recognized `charge`-kind trigger name and the
+## charge pool it grants — see docs/traits.md's Property/Parameter Reference.
+const KNOWN_CHARGE_TRIGGERS: Array[String] = [
+	"on_capture",
+]
+
 const TRAITS_PATH: String = "res://data/traits.json"
 
 var _definitions: Dictionary = {}
@@ -84,6 +90,11 @@ func _validate(definition: Dictionary) -> bool:
 			if not KNOWN_FLAGS.has(flag):
 				Log.error("GameData: unrecognized flag '%s' on trait '%s'" % [flag, id])
 				return false
+		"charge":
+			var trigger: String = effect.get("trigger", "")
+			if not KNOWN_CHARGE_TRIGGERS.has(trigger):
+				Log.error("GameData: unrecognized charge trigger '%s' on trait '%s'" % [trigger, id])
+				return false
 		_:
 			Log.error("GameData: unrecognized effect kind '%s' on trait '%s'" % [kind, id])
 			return false
@@ -98,6 +109,8 @@ func _apply_effect(definition: Dictionary, player: Player) -> void:
 		_apply_detection_modifier(effect, player)
 	elif kind == "flag":
 		_apply_flag(effect, player)
+	elif kind == "charge":
+		_apply_charge(effect, player)
 
 func _apply_stat(effect: Dictionary, player: Player) -> void:
 	var property: String = effect.get("property", "")
@@ -131,6 +144,13 @@ func _apply_flag(effect: Dictionary, player: Player) -> void:
 			player.traits.set_chest_opens_on_adjacent(value)
 		"emits_noise_while_waiting":
 			player.traits.set_emits_noise_while_waiting(value)
+
+func _apply_charge(effect: Dictionary, player: Player) -> void:
+	var trigger: String = effect.get("trigger", "")
+	var charges: int = int(effect.get("charges", 0))
+	match trigger:
+		"on_capture":
+			player.traits.add_capture_charges(charges)
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:

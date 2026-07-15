@@ -51,6 +51,8 @@ func try_move_to(to_cell: Vector2i) -> void:
 
 func interact(source: Entity) -> void:
 	if source is Guard:
+		if traits.try_consume_capture_charge():
+			return
 		RunState.lose("Captured by a guard.")
 
 func move_to(to_cell: Vector2i) -> void:

@@ -154,5 +154,16 @@
       "flag": "emits_noise_while_waiting",
       "value": true
     }
+  },
+  {
+    "id": "slippery",
+    "name": "Slippery",
+    "type": "positive",
+    "description": "The first time a guard would capture you, you slip free instead. One use per run.",
+    "effect": {
+      "kind": "charge",
+      "trigger": "on_capture",
+      "charges": 1
+    }
   }
 ]
