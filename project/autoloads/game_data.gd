@@ -18,6 +18,12 @@ const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
 	"guard_search_hops",
 ]
 
+## Authored dispatch: every recognized `flag`-kind name and the boolean
+## capability it toggles — see docs/traits.md's Property/Parameter Reference.
+const KNOWN_FLAGS: Array[String] = [
+	"chest_opens_on_adjacent",
+]
+
 const TRAITS_PATH: String = "res://data/traits.json"
 
 var _definitions: Dictionary = {}
@@ -72,6 +78,11 @@ func _validate(definition: Dictionary) -> bool:
 			if not KNOWN_DETECTION_MODIFIER_PARAMETERS.has(parameter):
 				Log.error("GameData: unrecognized detection_modifier parameter '%s' on trait '%s'" % [parameter, id])
 				return false
+		"flag":
+			var flag: String = effect.get("flag", "")
+			if not KNOWN_FLAGS.has(flag):
+				Log.error("GameData: unrecognized flag '%s' on trait '%s'" % [flag, id])
+				return false
 		_:
 			Log.error("GameData: unrecognized effect kind '%s' on trait '%s'" % [kind, id])
 			return false
@@ -84,6 +95,8 @@ func _apply_effect(definition: Dictionary, player: Player) -> void:
 		_apply_stat(effect, player)
 	elif kind == "detection_modifier":
 		_apply_detection_modifier(effect, player)
+	elif kind == "flag":
+		_apply_flag(effect, player)
 
 func _apply_stat(effect: Dictionary, player: Player) -> void:
 	var property: String = effect.get("property", "")
@@ -108,6 +121,13 @@ func _apply_detection_modifier(effect: Dictionary, player: Player) -> void:
 			player.traits.set_tracking_memory_modifier(_resolve(operation, player.traits.tracking_memory_modifier(), value))
 		"guard_search_hops":
 			player.traits.set_search_hops_modifier(_resolve(operation, player.traits.search_hops_modifier(), value))
+
+func _apply_flag(effect: Dictionary, player: Player) -> void:
+	var flag: String = effect.get("flag", "")
+	var value: bool = bool(effect.get("value", false))
+	match flag:
+		"chest_opens_on_adjacent":
+			player.traits.set_chest_opens_on_adjacent(value)
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:

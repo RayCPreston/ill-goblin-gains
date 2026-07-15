@@ -132,5 +132,16 @@
       "operation": "delta",
       "value": 2
     }
+  },
+  {
+    "id": "cat_burglar",
+    "name": "Cat Burglar",
+    "type": "positive",
+    "description": "Chests open automatically the moment you're adjacent to them — no need to bump into them like you normally would.",
+    "effect": {
+      "kind": "flag",
+      "flag": "chest_opens_on_adjacent",
+      "value": true
+    }
   }
 ]
