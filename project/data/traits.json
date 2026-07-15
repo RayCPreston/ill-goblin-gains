@@ -120,5 +120,17 @@
       "operation": "delta",
       "value": -1
     }
+  },
+  {
+    "id": "persistent_trail",
+    "name": "Persistent Trail",
+    "type": "negative",
+    "description": "Guards project your position forward for longer after losing sight of you — harder to shake a tail once spotted.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_tracking_memory",
+      "operation": "delta",
+      "value": 2
+    }
   }
 ]
