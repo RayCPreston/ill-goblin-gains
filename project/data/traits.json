@@ -165,5 +165,16 @@
       "trigger": "on_capture",
       "charges": 1
     }
+  },
+  {
+    "id": "disguise",
+    "name": "Disguise",
+    "type": "positive",
+    "description": "The first time you'd be detected, you pass through undetected instead — for as long as you remain inside a guard's vision cone(s) without breaking away. One use per run.",
+    "effect": {
+      "kind": "charge",
+      "trigger": "on_sustained_detection_window",
+      "charges": 1
+    }
   }
 ]

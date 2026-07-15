@@ -71,12 +71,16 @@ func check_immediate_sighting(player_cell: Vector2i) -> bool:
 	var in_outer: bool = player_cell in _guard.get_outer_zone()
 	if not (in_inner or in_outer):
 		return false
+	var player: Player = GridManager.get_player()
+	if WorldState.alert_level != WorldState.AlertLevel.ALERT and player.traits.has_disguise_charge():
+		player.traits.mark_seen_this_turn()
+		return true
 	if _has_prior_sighting and player_cell != _last_player_cell:
 		_last_seen_direction = _step_direction(player_cell - _last_player_cell)
 	_last_player_cell = player_cell
 	_has_prior_sighting = true
-	_tracking_turns = TRACKING_MEMORY + GridManager.get_player().traits.tracking_memory_modifier()
-	_search_hops_remaining = POI_SEARCH_HOPS + GridManager.get_player().traits.search_hops_modifier()
+	_tracking_turns = TRACKING_MEMORY + player.traits.tracking_memory_modifier()
+	_search_hops_remaining = POI_SEARCH_HOPS + player.traits.search_hops_modifier()
 	if in_inner:
 		_on_inner_detection(player_cell)
 	else:

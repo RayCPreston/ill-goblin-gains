@@ -29,6 +29,7 @@ const KNOWN_FLAGS: Array[String] = [
 ## charge pool it grants — see docs/traits.md's Property/Parameter Reference.
 const KNOWN_CHARGE_TRIGGERS: Array[String] = [
 	"on_capture",
+	"on_sustained_detection_window",
 ]
 
 const TRAITS_PATH: String = "res://data/traits.json"
@@ -151,6 +152,8 @@ func _apply_charge(effect: Dictionary, player: Player) -> void:
 	match trigger:
 		"on_capture":
 			player.traits.add_capture_charges(charges)
+		"on_sustained_detection_window":
+			player.traits.add_disguise_charges(charges)
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:
