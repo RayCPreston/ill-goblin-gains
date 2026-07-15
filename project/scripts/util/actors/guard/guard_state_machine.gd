@@ -76,7 +76,7 @@ func check_immediate_sighting(player_cell: Vector2i) -> bool:
 	_last_player_cell = player_cell
 	_has_prior_sighting = true
 	_tracking_turns = TRACKING_MEMORY + GridManager.get_player().traits.tracking_memory_modifier()
-	_search_hops_remaining = POI_SEARCH_HOPS
+	_search_hops_remaining = POI_SEARCH_HOPS + GridManager.get_player().traits.search_hops_modifier()
 	if in_inner:
 		_on_inner_detection(player_cell)
 	else:

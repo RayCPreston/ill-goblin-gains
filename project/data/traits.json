@@ -108,5 +108,17 @@
       "operation": "delta",
       "value": -1
     }
+  },
+  {
+    "id": "vanishing_act",
+    "name": "Vanishing Act",
+    "type": "positive",
+    "description": "Guards give up searching for you and return to patrol sooner once they've lost your trail.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_search_hops",
+      "operation": "delta",
+      "value": -1
+    }
   }
 ]
