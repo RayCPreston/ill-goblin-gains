@@ -3,6 +3,11 @@ extends Node
 enum Dir { N, NE, E, SE, S, SW, W, NW }
 
 const TILE_SIZE = 16
+
+const STARTING_POSITIVE_TRAIT_COUNT = 3
+const STARTING_NEGATIVE_TRAIT_COUNT = 2
+const STARTING_ITEM_COUNT = 3
+
 const dir: Dictionary = {
 	Dir.N: Vector2i(0, -1),
 	Dir.NE: Vector2i(1, -1),

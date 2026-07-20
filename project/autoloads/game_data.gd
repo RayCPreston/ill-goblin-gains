@@ -57,6 +57,13 @@ func _ready() -> void:
 func get_definition(id: String) -> Dictionary:
 	return _definitions.get(id, {})
 
+func get_ids_by_type(type: String) -> Array[String]:
+	var ids: Array[String] = []
+	for id: String in _definitions:
+		if _definitions[id].get("type", "") == type:
+			ids.append(id)
+	return ids
+
 func apply_traits(ids: Array[String], player: Player) -> void:
 	for id: String in ids:
 		if not _definitions.has(id):

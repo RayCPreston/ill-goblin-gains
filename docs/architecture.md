@@ -17,7 +17,10 @@
 | `Log` | Node | Logging wrapper |
 | `ResolutionManager` | Node | Resolution handling |
 | `VfxManager` | Node2D | Listens for VFX-trigger signals (`GameEvents.sound_emitted`), instances real-time effect nodes as children |
-| `GameManager` | Node | Run-lifecycle logic: restart input handling, placeholder starting-traits trigger on `GameEvents.level_ready` |
+| `GameManager` | Node | Run-lifecycle logic: restart input handling, rolls the run-start trait loadout (`PoolRoller` + `GameData.get_ids_by_type()`) on `GameEvents.level_ready`, applies it, emits `GameEvents.loadout_rolled` |
+| `GameData` | Node | Loads/validates trait definitions from `data/traits.json`, applies effects to the player via an authored dispatch, `get_ids_by_type()` for the rollable pool |
+| `RunState` | Node | Win/loss outcome, `has_macguffin`, `loadout: RunLoadout` (this run's rolled trait ids) |
+| `UiState` | Node | `modal_open: bool` — blocks `Player._unhandled_input()` while any modal (traits, run start, etc.) is open |
 
 ## Entity Hierarchy
 
@@ -97,6 +100,17 @@ Real-time, turn-independent presentation layer — distinct from every other sys
 - **`SoundPulse`** (`scripts/vfx/sound_pulse.gd`, `Node2D`) — grows a ring from radius 0 to a target over `DURATION` seconds, fading alpha alongside, via `_draw()`; frees itself on completion. Spawned on every completed player move at `Player.noise_radius * Constants.TILE_SIZE`. Multiple concurrent pulses are expected and independent (no debouncing).
 - **`SmellAura`** (`scripts/vfx/smell_aura.gd`, `Node2D`) — a `ColorRect` + `ShaderMaterial` (`resources/shaders/smell_aura.gdshader`) rendering a constant, subtle orange haze plus a handful of wavy "stink lines" radiating outward, sized to `Player.smell_radius * Constants.TILE_SIZE`. The fragment shader works in polar coordinates (angle/distance from center): picks the nearest of `line_count` evenly-spaced arm angles, perturbs each arm sideways with a `sin(dist * frequency + TIME * speed)` wave for the wobble, and fades each line in near the center and out before the edge so it reads as organic wisps rather than a rigid starburst. Both the haze and line alphas are kept low by design — this is meant to be noticeable but not distracting.
 - **Smell:** `Player.smell_radius` (default `0`, set via the `Smelly` trait like any other `stat` trait) drives both the visual above and a gameplay hook, `Player._emit_smell()`, which runs the same `ProximityAlert` BFS as `_emit_noise()` but fires every turn (`move_to()` and `wait()`), not just on movement, matching the GDD's `on_turn_end` hook-trait shape. Players without `Smelly` have `smell_radius = 0`, so `_emit_smell()`'s `ProximityAlert.compute()` returns nothing and `SmellAura` renders at zero size — no gameplay or visual footprint.
+
+## Run Start Flow
+
+At `GameEvents.level_ready`, `GameManager` rolls a fresh trait loadout and applies it before the player can act — no main menu yet, the game still boots directly into a run.
+
+- **`PoolRoller`** (`scripts/util/pool_roller.gd`, RefCounted) — generic random-sample-without-replacement over a list of ids (`roll(ids, count)`). No knowledge of traits or items, so the same call can later target an item pool.
+- **`RunLoadout`** (`scripts/util/run_loadout.gd`, RefCounted) — holds what got rolled for the current run (`positive_trait_ids`, `negative_trait_ids`). Held as `RunState.loadout`, reset alongside the rest of `RunState.reset()`.
+- `GameManager._on_level_ready()` rolls `Constants.STARTING_POSITIVE_TRAIT_COUNT`/`STARTING_NEGATIVE_TRAIT_COUNT` ids via `PoolRoller` + `GameData.get_ids_by_type()`, applies them via the existing `GameData.apply_traits()`, then emits `GameEvents.loadout_rolled(loadout)`.
+- **`RunStartModal`** (`scenes/ui/run_start_modal.tscn` / `scripts/ui/run_start_modal.gd`) — follows the `EndScreen`/`TraitsModal` `CanvasLayer` precedent. Listens for `GameEvents.loadout_rolled`, lists the rolled traits grouped positive/negative, sets `UiState.modal_open = true`, and dismisses on the `confirm` input action.
+- Restarting (`R`) reruns `_on_level_ready()` via scene reload, so it re-rolls and re-shows the modal automatically — no special-case restart logic.
+- `Constants.STARTING_ITEM_COUNT` is reserved for a future equipment roll; nothing rolls, displays, or applies items yet.
 
 ## Pathfinding
 
