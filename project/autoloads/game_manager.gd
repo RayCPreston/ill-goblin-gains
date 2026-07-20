@@ -8,8 +8,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		_restart_run()
 
 func _on_level_ready() -> void:
-	var starting_traits: Array[String] = ["padfoot", "keen_eyes", "two_left_feet", "nearsighted", "pitcher", "butterfingers", "camouflage", "big_target", "cold_trail", "vanishing_act", "persistent_trail", "cat_burglar", "fidgety", "slippery", "disguise", "statue", "clumsy", "far_sighted", "smelly"]
-	GameData.apply_traits(starting_traits, GridManager.get_player())
+	var loadout: RunLoadout = RunState.loadout
+	var roller: PoolRoller = PoolRoller.new()
+	loadout.positive_trait_ids = roller.roll(
+		GameData.get_ids_by_type("positive"), Constants.STARTING_POSITIVE_TRAIT_COUNT
+	)
+	loadout.negative_trait_ids = roller.roll(
+		GameData.get_ids_by_type("negative"), Constants.STARTING_NEGATIVE_TRAIT_COUNT
+	)
+	GameData.apply_traits(loadout.all_trait_ids(), GridManager.get_player())
+	GameEvents.loadout_rolled.emit(loadout)
 
 func _restart_run() -> void:
 	WorldState.reset()
