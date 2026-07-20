@@ -6,7 +6,7 @@ signal vision_updated(cells: Dictionary)
 var fov: PlayerFov = PlayerFov.new()
 var traits: PlayerTraitState = PlayerTraitState.new()
 var noise_radius: int = 2
-var smell_radius: int = 2
+var smell_radius: int = 0
 var throw_range: int = 0
 var waited_last_turn: bool = false
 

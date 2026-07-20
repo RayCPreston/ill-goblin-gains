@@ -215,5 +215,17 @@
       "operation": "set",
       "value": 2
     }
+  },
+  {
+    "id": "smelly",
+    "name": "Smelly",
+    "type": "negative",
+    "description": "Your smell radius is increased by 2.",
+    "effect": {
+      "kind": "stat",
+      "property": "smell_radius",
+      "operation": "delta",
+      "value": 2
+    }
   }
 ]
