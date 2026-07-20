@@ -188,5 +188,20 @@
       "operation": "suppress",
       "condition": "player_waited_last_turn"
     }
+  },
+  {
+    "id": "clumsy",
+    "name": "Clumsy",
+    "type": "negative",
+    "description": "Every time you move, there's a chance you stumble — your sound pulse fires at double radius instead of normal.",
+    "effect": {
+      "kind": "chance",
+      "trigger": "on_move",
+      "one_in": 5,
+      "outcome": {
+        "type": "noise_multiplier",
+        "multiplier": 2
+      }
+    }
   }
 ]

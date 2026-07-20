@@ -33,6 +33,18 @@ const KNOWN_CHARGE_TRIGGERS: Array[String] = [
 	"on_sustained_detection_window",
 ]
 
+## Authored dispatch: every recognized `chance`-kind trigger name — see
+## docs/traits.md's Property/Parameter Reference.
+const KNOWN_CHANCE_TRIGGERS: Array[String] = [
+	"on_move",
+]
+
+## Authored dispatch: every recognized `chance`-kind outcome type — see
+## docs/traits.md's Property/Parameter Reference.
+const KNOWN_CHANCE_OUTCOME_TYPES: Array[String] = [
+	"noise_multiplier",
+]
+
 const TRAITS_PATH: String = "res://data/traits.json"
 
 var _definitions: Dictionary = {}
@@ -97,6 +109,16 @@ func _validate(definition: Dictionary) -> bool:
 			if not KNOWN_CHARGE_TRIGGERS.has(trigger):
 				Log.error("GameData: unrecognized charge trigger '%s' on trait '%s'" % [trigger, id])
 				return false
+		"chance":
+			var trigger: String = effect.get("trigger", "")
+			if not KNOWN_CHANCE_TRIGGERS.has(trigger):
+				Log.error("GameData: unrecognized chance trigger '%s' on trait '%s'" % [trigger, id])
+				return false
+			var outcome: Dictionary = effect.get("outcome", {})
+			var outcome_type: String = outcome.get("type", "")
+			if not KNOWN_CHANCE_OUTCOME_TYPES.has(outcome_type):
+				Log.error("GameData: unrecognized chance outcome type '%s' on trait '%s'" % [outcome_type, id])
+				return false
 		_:
 			Log.error("GameData: unrecognized effect kind '%s' on trait '%s'" % [kind, id])
 			return false
@@ -113,6 +135,8 @@ func _apply_effect(definition: Dictionary, player: Player) -> void:
 		_apply_flag(effect, player)
 	elif kind == "charge":
 		_apply_charge(effect, player)
+	elif kind == "chance":
+		_apply_chance(effect, player)
 
 func _apply_stat(effect: Dictionary, player: Player) -> void:
 	var property: String = effect.get("property", "")
@@ -158,6 +182,15 @@ func _apply_charge(effect: Dictionary, player: Player) -> void:
 			player.traits.add_capture_charges(charges)
 		"on_sustained_detection_window":
 			player.traits.add_disguise_charges(charges)
+
+func _apply_chance(effect: Dictionary, player: Player) -> void:
+	var trigger: String = effect.get("trigger", "")
+	var one_in: int = int(effect.get("one_in", 0))
+	var outcome: Dictionary = effect.get("outcome", {})
+	var outcome_type: String = outcome.get("type", "")
+	if trigger == "on_move" and outcome_type == "noise_multiplier":
+		var multiplier: int = int(outcome.get("multiplier", 1))
+		player.traits.set_move_noise_multiplier_chance(one_in, multiplier)
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:

@@ -61,7 +61,7 @@ func move_to(to_cell: Vector2i) -> void:
 	super(to_cell)
 	GameEvents.player_pos_updated.emit(position)
 	_compute_fov()
-	_emit_noise()
+	_emit_noise(traits.check_on_move_chance_effects())
 	_emit_smell()
 
 func wait() -> void:
@@ -74,9 +74,10 @@ func wait() -> void:
 func _compute_fov() -> void:
 	vision_updated.emit(fov.compute(cell))
 
-func _emit_noise() -> void:
-	GameEvents.sound_emitted.emit(cell_center_to_world(cell), float(noise_radius * Constants.TILE_SIZE))
-	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, noise_radius)
+func _emit_noise(radius_multiplier: int = 1) -> void:
+	var radius: int = noise_radius * radius_multiplier
+	GameEvents.sound_emitted.emit(cell_center_to_world(cell), float(radius * Constants.TILE_SIZE))
+	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, radius)
 	for alerted_cell: Vector2i in alerted_cells:
 		var actor: Entity = GridManager.get_actor_at_cell(alerted_cell)
 		if actor is Guard:

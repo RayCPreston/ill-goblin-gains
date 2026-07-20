@@ -11,6 +11,8 @@ var _disguise_charges: int = 0
 var _disguise_exposed: bool = false
 var _seen_this_turn: bool = false
 var _outer_zone_suppressed_while_waiting: bool = false
+var _move_noise_multiplier_chance: int = 0
+var _move_noise_multiplier: int = 1
 
 func get_applied_ids() -> Array[String]:
 	return applied_ids
@@ -92,3 +94,18 @@ func set_outer_zone_suppressed_while_waiting(value: bool) -> void:
 
 func is_outer_zone_suppressed(player_waited_last_turn: bool) -> bool:
 	return _outer_zone_suppressed_while_waiting and player_waited_last_turn
+
+func set_move_noise_multiplier_chance(one_in: int, multiplier: int) -> void:
+	_move_noise_multiplier_chance = one_in
+	_move_noise_multiplier = multiplier
+
+## Rolls every `chance`-kind trait triggered `on_move`. Returns the noise
+## radius multiplier to apply to this move's sound pulse (1 if nothing
+## procced). Player doesn't know about probabilities or trait ids — it just
+## calls this once and passes the result straight into _emit_noise().
+func check_on_move_chance_effects() -> int:
+	if _move_noise_multiplier_chance <= 0:
+		return 1
+	if randi() % _move_noise_multiplier_chance == 0:
+		return _move_noise_multiplier
+	return 1
