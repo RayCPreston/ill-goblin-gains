@@ -67,11 +67,13 @@ func _check_detection() -> void:
 ## detection just by moving away before this guard's process_turn() runs.
 ## Returns true if the cell was seen.
 func check_immediate_sighting(player_cell: Vector2i) -> bool:
+	var player: Player = GridManager.get_player()
 	var in_inner: bool = player_cell in _guard.get_inner_zone()
 	var in_outer: bool = player_cell in _guard.get_outer_zone()
+	if in_outer and not in_inner and player.traits.is_outer_zone_suppressed(player.waited_last_turn):
+		in_outer = false
 	if not (in_inner or in_outer):
 		return false
-	var player: Player = GridManager.get_player()
 	if WorldState.alert_level != WorldState.AlertLevel.ALERT and player.traits.has_disguise_charge():
 		player.traits.mark_seen_this_turn()
 		return true

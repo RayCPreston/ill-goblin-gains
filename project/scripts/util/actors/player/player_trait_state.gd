@@ -10,6 +10,7 @@ var _capture_charges: int = 0
 var _disguise_charges: int = 0
 var _disguise_exposed: bool = false
 var _seen_this_turn: bool = false
+var _outer_zone_suppressed_while_waiting: bool = false
 
 func get_applied_ids() -> Array[String]:
 	return applied_ids
@@ -85,3 +86,9 @@ func resolve_disguise_turn() -> void:
 		_disguise_charges -= 1
 		_disguise_exposed = false
 	_seen_this_turn = false
+
+func set_outer_zone_suppressed_while_waiting(value: bool) -> void:
+	_outer_zone_suppressed_while_waiting = value
+
+func is_outer_zone_suppressed(player_waited_last_turn: bool) -> bool:
+	return _outer_zone_suppressed_while_waiting and player_waited_last_turn

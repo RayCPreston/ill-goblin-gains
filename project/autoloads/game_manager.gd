@@ -8,7 +8,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_restart_run()
 
 func _on_level_ready() -> void:
-	var starting_traits: Array[String] = ["padfoot", "keen_eyes", "two_left_feet", "nearsighted", "pitcher", "butterfingers", "camouflage", "big_target", "cold_trail", "vanishing_act", "persistent_trail", "cat_burglar", "fidgety", "slippery", "disguise"]
+	var starting_traits: Array[String] = ["padfoot", "keen_eyes", "two_left_feet", "nearsighted", "pitcher", "butterfingers", "camouflage", "big_target", "cold_trail", "vanishing_act", "persistent_trail", "cat_burglar", "fidgety", "slippery", "disguise", "statue"]
 	GameData.apply_traits(starting_traits, GridManager.get_player())
 
 func _restart_run() -> void:

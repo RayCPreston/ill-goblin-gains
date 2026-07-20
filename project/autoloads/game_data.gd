@@ -16,6 +16,7 @@ const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
 	"guard_inner_range",
 	"guard_tracking_memory",
 	"guard_search_hops",
+	"guard_outer_zone",
 ]
 
 ## Authored dispatch: every recognized `flag`-kind name and the boolean
@@ -136,6 +137,9 @@ func _apply_detection_modifier(effect: Dictionary, player: Player) -> void:
 			player.traits.set_tracking_memory_modifier(_resolve(operation, player.traits.tracking_memory_modifier(), value))
 		"guard_search_hops":
 			player.traits.set_search_hops_modifier(_resolve(operation, player.traits.search_hops_modifier(), value))
+		"guard_outer_zone":
+			if operation == "suppress":
+				player.traits.set_outer_zone_suppressed_while_waiting(true)
 
 func _apply_flag(effect: Dictionary, player: Player) -> void:
 	var flag: String = effect.get("flag", "")

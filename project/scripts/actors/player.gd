@@ -8,6 +8,7 @@ var traits: PlayerTraitState = PlayerTraitState.new()
 var noise_radius: int = 2
 var smell_radius: int = 2
 var throw_range: int = 0
+var waited_last_turn: bool = false
 
 func _ready() -> void:
 	is_interactable = true
@@ -28,6 +29,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var action: PlayerInput.Action = PlayerInput.get_input_action(event)
 	if action == PlayerInput.Action.NONE:
 		return
+	waited_last_turn = action == PlayerInput.Action.WAIT
 	_check_guard_sighting()
 	if action == PlayerInput.Action.WAIT:
 		wait()

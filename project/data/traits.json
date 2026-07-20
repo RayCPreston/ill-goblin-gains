@@ -176,5 +176,17 @@
       "trigger": "on_sustained_detection_window",
       "charges": 1
     }
+  },
+  {
+    "id": "statue",
+    "name": "Statue",
+    "type": "positive",
+    "description": "While waiting instead of moving, guards' outer-zone detection doesn't register you — only close-range detection still applies.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_outer_zone",
+      "operation": "suppress",
+      "condition": "player_waited_last_turn"
+    }
   }
 ]
