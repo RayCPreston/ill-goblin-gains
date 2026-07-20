@@ -7,6 +7,7 @@ const KNOWN_STAT_PROPERTIES: Array[String] = [
 	"noise_radius",
 	"vision_range",
 	"throw_range",
+	"vision_min_range",
 ]
 
 ## Authored dispatch: every recognized `detection_modifier`-kind parameter name
@@ -149,6 +150,8 @@ func _apply_stat(effect: Dictionary, player: Player) -> void:
 			player.fov.max_range = _resolve(operation, player.fov.max_range, value)
 		"throw_range":
 			player.throw_range = _resolve(operation, player.throw_range, value)
+		"vision_min_range":
+			player.fov.min_range = _resolve(operation, player.fov.min_range, value)
 
 func _apply_detection_modifier(effect: Dictionary, player: Player) -> void:
 	var parameter: String = effect.get("parameter", "")

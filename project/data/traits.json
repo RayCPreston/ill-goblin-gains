@@ -203,5 +203,17 @@
         "multiplier": 2
       }
     }
+  },
+  {
+    "id": "far_sighted",
+    "name": "Far-Sighted",
+    "type": "negative",
+    "description": "Your vision doesn't start until 2 tiles away — you have a blind spot immediately around you, though you can always see the tile you're standing on.",
+    "effect": {
+      "kind": "stat",
+      "property": "vision_min_range",
+      "operation": "set",
+      "value": 2
+    }
   }
 ]
