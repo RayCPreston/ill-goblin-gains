@@ -3,6 +3,7 @@ class_name PlayerFov
 enum VisionState { UNSEEN, REMEMBERED, VISIBLE }
 
 var max_range: int = 15
+var min_range: int = 0
 var _memory: Dictionary = {}
 
 func compute(origin: Vector2i) -> Dictionary:
@@ -60,7 +61,7 @@ func _scan(origin: Vector2i, quadrant: int, row: int, start_slope: float, end_sl
 		var cell: Vector2i = _transform(origin, quadrant, row, col)
 		var is_opaque: bool = _is_opaque(cell)
 		var is_symmetric: bool = _is_symmetric(origin, quadrant, row, col, start_slope, end_slope)
-		if is_opaque or is_symmetric:
+		if (is_opaque or is_symmetric) and row >= min_range:
 			_memory[cell] = VisionState.VISIBLE
 		if prev_was_opaque and not is_opaque:
 			start_slope = _slope(row, col)

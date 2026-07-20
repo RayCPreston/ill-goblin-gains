@@ -6,8 +6,9 @@ signal vision_updated(cells: Dictionary)
 var fov: PlayerFov = PlayerFov.new()
 var traits: PlayerTraitState = PlayerTraitState.new()
 var noise_radius: int = 2
-var smell_radius: int = 2
+var smell_radius: int = 0
 var throw_range: int = 0
+var waited_last_turn: bool = false
 
 func _ready() -> void:
 	is_interactable = true
@@ -28,6 +29,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var action: PlayerInput.Action = PlayerInput.get_input_action(event)
 	if action == PlayerInput.Action.NONE:
 		return
+	waited_last_turn = action == PlayerInput.Action.WAIT
 	_check_guard_sighting()
 	if action == PlayerInput.Action.WAIT:
 		wait()
@@ -51,26 +53,31 @@ func try_move_to(to_cell: Vector2i) -> void:
 
 func interact(source: Entity) -> void:
 	if source is Guard:
+		if traits.try_consume_capture_charge():
+			return
 		RunState.lose("Captured by a guard.")
 
 func move_to(to_cell: Vector2i) -> void:
 	super(to_cell)
 	GameEvents.player_pos_updated.emit(position)
 	_compute_fov()
-	_emit_noise()
+	_emit_noise(traits.check_on_move_chance_effects())
 	_emit_smell()
 
 func wait() -> void:
 	_compute_fov()
 	_emit_smell()
+	if traits.emits_noise_while_waiting():
+		_emit_noise()
 	super()
 
 func _compute_fov() -> void:
 	vision_updated.emit(fov.compute(cell))
 
-func _emit_noise() -> void:
-	GameEvents.sound_emitted.emit(cell_center_to_world(cell), float(noise_radius * Constants.TILE_SIZE))
-	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, noise_radius)
+func _emit_noise(radius_multiplier: int = 1) -> void:
+	var radius: int = noise_radius * radius_multiplier
+	GameEvents.sound_emitted.emit(cell_center_to_world(cell), float(radius * Constants.TILE_SIZE))
+	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, radius)
 	for alerted_cell: Vector2i in alerted_cells:
 		var actor: Entity = GridManager.get_actor_at_cell(alerted_cell)
 		if actor is Guard:

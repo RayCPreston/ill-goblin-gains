@@ -33,4 +33,5 @@ func run_world_turn() -> void:
 		entity.take_turn()
 	if WorldState.alert_level == WorldState.AlertLevel.ALERT:
 		WorldState.tick_tracking()
+	GridManager.get_player().traits.resolve_disguise_turn()
 	_phase = Phase.PLAYER

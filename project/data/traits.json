@@ -96,5 +96,136 @@
       "operation": "delta",
       "value": 1
     }
+  },
+  {
+    "id": "cold_trail",
+    "name": "Cold Trail",
+    "type": "positive",
+    "description": "Guards give up tracking your projected position sooner after losing sight of you.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_tracking_memory",
+      "operation": "delta",
+      "value": -1
+    }
+  },
+  {
+    "id": "vanishing_act",
+    "name": "Vanishing Act",
+    "type": "positive",
+    "description": "Guards give up searching for you and return to patrol sooner once they've lost your trail.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_search_hops",
+      "operation": "delta",
+      "value": -1
+    }
+  },
+  {
+    "id": "persistent_trail",
+    "name": "Persistent Trail",
+    "type": "negative",
+    "description": "Guards project your position forward for longer after losing sight of you — harder to shake a tail once spotted.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_tracking_memory",
+      "operation": "delta",
+      "value": 2
+    }
+  },
+  {
+    "id": "cat_burglar",
+    "name": "Cat Burglar",
+    "type": "positive",
+    "description": "Chests open automatically the moment you're adjacent to them — no need to bump into them like you normally would.",
+    "effect": {
+      "kind": "flag",
+      "flag": "chest_opens_on_adjacent",
+      "value": true
+    }
+  },
+  {
+    "id": "fidgety",
+    "name": "Fidgety",
+    "type": "negative",
+    "description": "Waiting doesn't fully hide you — you still emit a small sound pulse even while standing still.",
+    "effect": {
+      "kind": "flag",
+      "flag": "emits_noise_while_waiting",
+      "value": true
+    }
+  },
+  {
+    "id": "slippery",
+    "name": "Slippery",
+    "type": "positive",
+    "description": "The first time a guard would capture you, you slip free instead. One use per run.",
+    "effect": {
+      "kind": "charge",
+      "trigger": "on_capture",
+      "charges": 1
+    }
+  },
+  {
+    "id": "disguise",
+    "name": "Disguise",
+    "type": "positive",
+    "description": "The first time you'd be detected, you pass through undetected instead — for as long as you remain inside a guard's vision cone(s) without breaking away. One use per run.",
+    "effect": {
+      "kind": "charge",
+      "trigger": "on_sustained_detection_window",
+      "charges": 1
+    }
+  },
+  {
+    "id": "statue",
+    "name": "Statue",
+    "type": "positive",
+    "description": "While waiting instead of moving, guards' outer-zone detection doesn't register you — only close-range detection still applies.",
+    "effect": {
+      "kind": "detection_modifier",
+      "parameter": "guard_outer_zone",
+      "operation": "suppress",
+      "condition": "player_waited_last_turn"
+    }
+  },
+  {
+    "id": "clumsy",
+    "name": "Clumsy",
+    "type": "negative",
+    "description": "Every time you move, there's a chance you stumble — your sound pulse fires at double radius instead of normal.",
+    "effect": {
+      "kind": "chance",
+      "trigger": "on_move",
+      "one_in": 5,
+      "outcome": {
+        "type": "noise_multiplier",
+        "multiplier": 2
+      }
+    }
+  },
+  {
+    "id": "far_sighted",
+    "name": "Far-Sighted",
+    "type": "negative",
+    "description": "Your vision doesn't start until 2 tiles away — you have a blind spot immediately around you, though you can always see the tile you're standing on.",
+    "effect": {
+      "kind": "stat",
+      "property": "vision_min_range",
+      "operation": "set",
+      "value": 2
+    }
+  },
+  {
+    "id": "smelly",
+    "name": "Smelly",
+    "type": "negative",
+    "description": "Your smell radius is increased by 2.",
+    "effect": {
+      "kind": "stat",
+      "property": "smell_radius",
+      "operation": "delta",
+      "value": 2
+    }
   }
 ]
