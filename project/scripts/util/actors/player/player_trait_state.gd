@@ -13,6 +13,7 @@ var _seen_this_turn: bool = false
 var _outer_zone_suppressed_while_waiting: bool = false
 var _move_noise_multiplier_chance: int = 0
 var _move_noise_multiplier: int = 1
+var _reveals_macguffin_direction: bool = false
 
 func get_applied_ids() -> Array[String]:
 	return applied_ids
@@ -109,3 +110,9 @@ func check_on_move_chance_effects() -> int:
 	if randi() % _move_noise_multiplier_chance == 0:
 		return _move_noise_multiplier
 	return 1
+
+func reveals_macguffin_direction() -> bool:
+	return _reveals_macguffin_direction
+
+func set_reveals_macguffin_direction(value: bool) -> void:
+	_reveals_macguffin_direction = value

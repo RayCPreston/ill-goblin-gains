@@ -15,7 +15,7 @@ func _process(_delta: float) -> void:
 	if _smell_aura == null:
 		_smell_aura = SmellAuraScript.new()
 		add_child(_smell_aura)
-		_smell_aura.set_radius(float(player.smell_radius * Constants.TILE_SIZE))
+	_smell_aura.set_radius(float(player.smell_radius * Constants.TILE_SIZE))
 	var tile_center_offset: Vector2 = Vector2(Constants.TILE_SIZE, Constants.TILE_SIZE) / 2.0
 	_smell_aura.position = player.position + tile_center_offset
 

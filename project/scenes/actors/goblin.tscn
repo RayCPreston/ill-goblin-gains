@@ -2,9 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://begpvkcbj242k" path="res://assets/sprites/characters/thief.png" id="1_8ji8l"]
 [ext_resource type="Script" uid="uid://dow2qo3gkl06i" path="res://scripts/actors/player.gd" id="1_q6353"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_q6353"]
-size = Vector2(16, 16)
+[ext_resource type="Texture2D" uid="uid://cw5fo6rfkfno1" path="res://assets/sprites/misc/treasure_hound_indicator_grey.png" id="3_fox1i"]
 
 [node name="Node2D" type="Node2D" unique_id=437332451]
 z_index = 20
@@ -15,8 +13,66 @@ entity_name = "goblin"
 texture = ExtResource("1_8ji8l")
 centered = false
 
-[node name="Area2D" type="Area2D" parent="." unique_id=414150923]
+[node name="TreasureHoundIndicators" type="Node2D" parent="." unique_id=203626741]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=247864722]
-position = Vector2(8, 8)
-shape = SubResource("RectangleShape2D_q6353")
+[node name="N" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=947492884]
+visible = false
+position = Vector2(8, 0)
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+
+[node name="NE" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=430097646]
+visible = false
+position = Vector2(16, 0)
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+frame = 1
+
+[node name="E" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=1618246649]
+visible = false
+position = Vector2(16, 8)
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+frame = 2
+
+[node name="SE" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=578443269]
+visible = false
+position = Vector2(16, 16)
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+frame = 3
+
+[node name="S" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=1890297101]
+visible = false
+position = Vector2(8, 16)
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+frame = 4
+
+[node name="SW" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=826821330]
+visible = false
+position = Vector2(0, 16)
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+frame = 5
+
+[node name="W" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=899466131]
+visible = false
+position = Vector2(0, 8)
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+frame = 6
+
+[node name="NW" type="Sprite2D" parent="TreasureHoundIndicators" unique_id=1255717592]
+visible = false
+texture = ExtResource("3_fox1i")
+hframes = 4
+vframes = 2
+frame = 7

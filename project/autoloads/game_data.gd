@@ -26,6 +26,7 @@ const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
 const KNOWN_FLAGS: Array[String] = [
 	"chest_opens_on_adjacent",
 	"emits_noise_while_waiting",
+	"reveals_macguffin_direction",
 ]
 
 ## Authored dispatch: every recognized `charge`-kind trigger name and the
@@ -186,6 +187,8 @@ func _apply_flag(effect: Dictionary, player: Player) -> void:
 			player.traits.set_chest_opens_on_adjacent(value)
 		"emits_noise_while_waiting":
 			player.traits.set_emits_noise_while_waiting(value)
+		"reveals_macguffin_direction":
+			player.traits.set_reveals_macguffin_direction(value)
 
 func _apply_charge(effect: Dictionary, player: Player) -> void:
 	var trigger: String = effect.get("trigger", "")
