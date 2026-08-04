@@ -5,6 +5,7 @@ signal vision_updated(cells: Dictionary)
 
 var fov: PlayerFov = PlayerFov.new()
 var traits: PlayerTraitState = PlayerTraitState.new()
+var treasure_hound: TreasureHoundIndicator = TreasureHoundIndicator.new()
 var noise_radius: int = 2
 var smell_radius: int = 0
 var throw_range: int = 0
@@ -16,8 +17,23 @@ func _ready() -> void:
 	GridManager.register_player(self)
 	VisionManager.initialize_player(self)
 	TurnManager.register_player(self)
+	var indicator_sprites: Array[Sprite2D] = [
+		$TreasureHoundIndicators/N,
+		$TreasureHoundIndicators/NE,
+		$TreasureHoundIndicators/E,
+		$TreasureHoundIndicators/SE,
+		$TreasureHoundIndicators/S,
+		$TreasureHoundIndicators/SW,
+		$TreasureHoundIndicators/W,
+		$TreasureHoundIndicators/NW,
+	]
+	treasure_hound.setup(indicator_sprites)
+	GameEvents.loadout_rolled.connect(_on_loadout_rolled)
 	call_deferred("_compute_fov")
 	call_deferred("_emit_position")
+
+func _on_loadout_rolled(_loadout: RunLoadout) -> void:
+	_update_treasure_hound_indicator()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if RunState.is_run_over:
@@ -50,6 +66,7 @@ func try_move_to(to_cell: Vector2i) -> void:
 		end_turn()
 		return
 	super(to_cell)
+	_update_treasure_hound_indicator()
 
 func interact(source: Entity) -> void:
 	if source is Guard:
@@ -92,3 +109,7 @@ func _emit_smell() -> void:
 
 func _emit_position() -> void:
 	GameEvents.player_pos_updated.emit(position)
+
+func _update_treasure_hound_indicator() -> void:
+	var active: bool = traits.reveals_macguffin_direction() and not RunState.has_macguffin
+	treasure_hound.update(cell, RunState.macguffin_cell, active)

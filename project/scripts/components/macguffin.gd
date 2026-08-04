@@ -7,6 +7,7 @@ func _ready() -> void:
 	is_furniture = true
 	is_interactable = true
 	super()
+	RunState.macguffin_cell = cell
 	_sprite.play("closed")
 
 func interact(source: Entity) -> void:

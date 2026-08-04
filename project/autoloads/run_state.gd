@@ -6,6 +6,7 @@ var has_macguffin: bool = false
 var is_run_over: bool = false
 var outcome: Outcome = Outcome.NONE
 var loadout: RunLoadout = RunLoadout.new()
+var macguffin_cell: Vector2i = Vector2i.ZERO
 
 func win(cause: String) -> void:
 	_end_run(Outcome.WIN, cause)
@@ -17,6 +18,7 @@ func reset() -> void:
 	has_macguffin = false
 	is_run_over = false
 	outcome = Outcome.NONE
+	macguffin_cell = Vector2i.ZERO
 	loadout.reset()
 
 func _end_run(result: Outcome, cause: String) -> void:
