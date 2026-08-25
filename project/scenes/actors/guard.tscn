@@ -2,6 +2,26 @@
 
 [ext_resource type="Texture2D" uid="uid://biwxvygo74h25" path="res://assets/sprites/characters/guard.png" id="1_7ceai"]
 [ext_resource type="Script" uid="uid://ba4rpfm7ldi5n" path="res://scripts/actors/guard.gd" id="1_ed206"]
+[ext_resource type="Texture2D" uid="uid://bfsxrnsfrf1s1" path="res://assets/sprites/misc/question_mark.png" id="2_f4ckm"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1tlvt"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_f4ckm")
+}],
+"loop": false,
+"name": &"heard",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_7ceai")
+}],
+"loop": false,
+"name": &"seen",
+"speed": 5.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ed206"]
 size = Vector2(16, 16)
@@ -11,8 +31,10 @@ z_index = 20
 script = ExtResource("1_ed206")
 entity_name = "guard"
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=407572258]
-texture = ExtResource("1_7ceai")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=1152882279]
+sprite_frames = SubResource("SpriteFrames_1tlvt")
+animation = &"seen"
+autoplay = "seen"
 centered = false
 
 [node name="Area2D" type="Area2D" parent="." unique_id=127472754]

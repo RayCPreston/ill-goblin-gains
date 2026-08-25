@@ -48,6 +48,12 @@ const KNOWN_CHANCE_OUTCOME_TYPES: Array[String] = [
 	"noise_multiplier",
 ]
 
+## Authored dispatch: every recognized `perception`-kind mode — see
+## docs/traits.md's Property/Parameter Reference.
+const KNOWN_PERCEPTION_MODES: Array[String] = [
+	"hearing_through_walls",
+]
+
 const TRAITS_PATH: String = "res://data/traits.json"
 
 var _definitions: Dictionary = {}
@@ -129,6 +135,11 @@ func _validate(definition: Dictionary) -> bool:
 			if not KNOWN_CHANCE_OUTCOME_TYPES.has(outcome_type):
 				Log.error("GameData: unrecognized chance outcome type '%s' on trait '%s'" % [outcome_type, id])
 				return false
+		"perception":
+			var mode: String = effect.get("mode", "")
+			if not KNOWN_PERCEPTION_MODES.has(mode):
+				Log.error("GameData: unrecognized perception mode '%s' on trait '%s'" % [mode, id])
+				return false
 		_:
 			Log.error("GameData: unrecognized effect kind '%s' on trait '%s'" % [kind, id])
 			return false
@@ -147,6 +158,8 @@ func _apply_effect(definition: Dictionary, player: Player) -> void:
 		_apply_charge(effect, player)
 	elif kind == "chance":
 		_apply_chance(effect, player)
+	elif kind == "perception":
+		_apply_perception(effect, player)
 
 func _apply_stat(effect: Dictionary, player: Player) -> void:
 	var property: String = effect.get("property", "")
@@ -207,6 +220,11 @@ func _apply_chance(effect: Dictionary, player: Player) -> void:
 	if trigger == "on_move" and outcome_type == "noise_multiplier":
 		var multiplier: int = int(outcome.get("multiplier", 1))
 		player.traits.set_move_noise_multiplier_chance(one_in, multiplier)
+
+func _apply_perception(effect: Dictionary, player: Player) -> void:
+	var mode: String = effect.get("mode", "")
+	if mode == "hearing_through_walls":
+		player.traits.set_eavesdrop_radius(int(effect.get("radius", 0)))
 
 func _resolve(operation: String, current: int, value: int) -> int:
 	match operation:

@@ -14,6 +14,7 @@ var _outer_zone_suppressed_while_waiting: bool = false
 var _move_noise_multiplier_chance: int = 0
 var _move_noise_multiplier: int = 1
 var _reveals_macguffin_direction: bool = false
+var _eavesdrop_radius: int = 0
 
 func get_applied_ids() -> Array[String]:
 	return applied_ids
@@ -116,3 +117,9 @@ func reveals_macguffin_direction() -> bool:
 
 func set_reveals_macguffin_direction(value: bool) -> void:
 	_reveals_macguffin_direction = value
+
+func eavesdrop_radius() -> int:
+	return _eavesdrop_radius
+
+func set_eavesdrop_radius(value: int) -> void:
+	_eavesdrop_radius = value

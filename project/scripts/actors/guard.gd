@@ -21,6 +21,7 @@ var _fov: GuardFov = GuardFov.new()
 var _inner_zone: Array[Vector2i] = []
 var _outer_zone: Array[Vector2i] = []
 var _state: GuardStateMachine
+@onready var _sprite: AnimatedSprite2D = $Sprite2D
 
 func _ready() -> void:
 	can_be_remembered = false
@@ -57,6 +58,22 @@ func get_inner_zone() -> Array[Vector2i]:
 
 func get_outer_zone() -> Array[Vector2i]:
 	return _outer_zone
+
+func refresh_visibility() -> void:
+	if VisionManager.get_state(cell) == PlayerFov.VisionState.VISIBLE:
+		super()
+		_sprite.play("seen")
+		return
+	visible = _is_eavesdropped()
+	if visible:
+		modulate = VisionManager.COLOR_VISIBLE
+		_sprite.play("heard")
+
+func _is_eavesdropped() -> bool:
+	var radius: int = GridManager.get_player().traits.eavesdrop_radius()
+	if radius <= 0:
+		return false
+	return ProximityAlert.new().compute(GridManager.get_player().cell, radius).has(cell)
 
 func move_to(to: Vector2i) -> void:
 	super(to)
