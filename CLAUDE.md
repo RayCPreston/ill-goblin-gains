@@ -8,9 +8,17 @@ Turn-based stealth roguelike in Godot 4 (GDScript). Player is a goblin infiltrat
 - Map size driven by `MapConfig` (default 72x45 tiles)
 
 ## Reference Docs
-- `docs/game-design-doc.md` — source of truth for all design questions (mechanics, traits, equipment, world/guard/security details)
-- `docs/architecture.md` — system design, autoload responsibilities, current implementation status
-- `docs/procgen.md` — procedural generation design notes (not yet implemented, not blocking current work)
+- `docs/design/game-design-doc.md` — source of truth for all design questions (mechanics, traits, equipment, world/guard/security details)
+- `docs/README.md` — index of all docs: `design/` (intent), `systems/` (how it works today, one page per system), `decisions/` (why), `stories/` (work in flight)
+- `docs/architecture.md` — system design and autoload responsibilities; being split into `docs/systems/` pages and retired as they land
+- `docs/design/procgen.md` — procedural generation design notes (not yet implemented, not blocking current work)
+
+## Skills
+Project skills live in `.claude/skills/`.
+- `/goblin-design [idea]` — collaborative design session: flesh out a feature with Ray from the player's perspective, using `docs/design/game-design-doc.md` as the primary reference. Readability of the play area comes first and juice must never get in its way. The result is a story in `docs/stories/` and, with Ray's OK, GDD edits. No code in this skill.
+- `/goblin-dev [story or task]` — implement to the project's engineering standards: manager-owned responsibilities, the signals-vs-method-calls rule, fully extensible solutions (no bolt-ons), self-explaining code with minimal comments. It then verifies by running the game, using `.claude/skills/goblin-dev/drive-game.ps1` (headless check, plus windowed launch/keys/screenshots).
+- `/goblin-ship [PR title]` — ship finished work in two halves. First: branch if needed, commit, push, and give Ray a pre-filled PR link; Ray squash-merges on GitHub. Then, once Ray confirms the merge: verify it landed on `master`, reset local to an up-to-date `master`, and delete the stale branch. Runs preflight checks (no `TEMP-` scaffolding, clean headless run) and stops on failures or ambiguity.
+- `/goblin-docs [audit | <system> | decision <topic> | harvest <story>]` — keep `docs/` current: audit the docs against the code, write a systems page from the code, record a decision, or harvest a shipped story into systems and decision docs before it's deleted.
 
 ## Core Conventions
 - **No physics.** All movement, collision, and spatial queries go through `GridManager` dictionaries and `TileManager`.
@@ -67,7 +75,7 @@ Capture, a placeholder MacGuffin, a win condition, and a restart loop all work e
 ## What's Next
 
 ### 1. Trait & GameData System — In Progress
-Being built incrementally, one trait story at a time, per `docs/stories/game-data-trait-application.md` (the epic) and `docs/stories/trait-story-NN-*.md` (per-trait stories, deleted from the repo as each lands). Full trait content (23 traits, six effect kinds: `stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`) is authored in `docs/traits.md`.
+Being built incrementally, one trait story at a time, per `docs/stories/game-data-trait-application.md` (the epic) and `docs/stories/trait-story-NN-*.md` (per-trait stories, deleted from the repo as each lands). Full trait content (23 traits, six effect kinds: `stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`) is authored in `docs/design/traits.md`.
 
 **Architecture landed (Story 01):**
 - `GameData` autoload (`project/autoloads/game_data.gd`) loads trait definitions from `project/data/traits.json`, validates each definition's effect kind/property against an authored known-set at load time (logs via `Log.error` and drops anything unrecognized — no silent no-ops on a typo), and applies effects to the player through an authored dispatch (`match` on property name, currently `stat`-kind only). No reflection (`Object.set()`/`set_indexed()`) anywhere.
@@ -93,5 +101,5 @@ Furniture is partially modeled: `Entity.is_furniture`, `Entity.can_hide_player` 
 - Dogs, cameras, laser traps (architecture supports them via generic `StateMachine`, no implementation yet)
 - Patrol routes — descoped; random destinations (overridden by POI/LKP) considered sufficient
 - Smoke bombs, alarm clocks, and other thrown items — need a persistent/evolving version of `ProximityAlert` (expanding, dissipating cloud), not just a one-shot pulse
-- Procedural generation (`docs/procgen.md` has early design notes)
+- Procedural generation (`docs/design/procgen.md` has early design notes)
 - Inventory / MacGuffin pickup
