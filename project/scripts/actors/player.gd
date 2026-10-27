@@ -6,6 +6,9 @@ signal vision_updated(cells: Dictionary)
 var fov: PlayerFov = PlayerFov.new()
 var traits: PlayerTraitState = PlayerTraitState.new()
 var treasure_hound: TreasureHoundIndicator = TreasureHoundIndicator.new()
+const NOISE_SPREAD_FACTOR: float = 1.0
+const NOISE_TEXT_CHANCE: float = 0.6
+
 var noise_radius: int = 2
 var smell_radius: int = 0
 var throw_range: int = 0
@@ -93,7 +96,10 @@ func _compute_fov() -> void:
 
 func _emit_noise(radius_multiplier: int = 1) -> void:
 	var radius: int = noise_radius * radius_multiplier
-	GameEvents.sound_emitted.emit(cell_center_to_world(cell), float(radius * Constants.TILE_SIZE))
+	if radius > 0 and randf() < NOISE_TEXT_CHANCE:
+		var request: FloatingTextRequest = FloatingTextRequest.create("*sneak*", cell)
+		request.spread_radius = float(radius * Constants.TILE_SIZE) * NOISE_SPREAD_FACTOR
+		GameEvents.text_emitted.emit(request)
 	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, radius)
 	for alerted_cell: Vector2i in alerted_cells:
 		var actor: Entity = GridManager.get_actor_at_cell(alerted_cell)

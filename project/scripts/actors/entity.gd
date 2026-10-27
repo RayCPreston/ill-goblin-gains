@@ -105,10 +105,10 @@ func refresh_visibility() -> void:
 	
 
 func world_to_cell(world_pos: Vector2) -> Vector2i:
-	return Vector2i(world_pos / Constants.TILE_SIZE)
+	return Constants.world_to_cell(world_pos)
 
 func cell_to_world(grid_pos: Vector2i) -> Vector2:
-	return Vector2(grid_pos * Constants.TILE_SIZE)
+	return Constants.cell_to_world(grid_pos)
 
 func cell_center_to_world(grid_pos: Vector2i) -> Vector2:
-	return cell_to_world(grid_pos) + Vector2(Constants.TILE_SIZE, Constants.TILE_SIZE) / 2.0
+	return Constants.cell_center_to_world(grid_pos)
