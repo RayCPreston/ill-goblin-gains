@@ -2,7 +2,7 @@ extends Node
 
 ## Authored dispatch: every recognized `stat`-kind property name and the
 ## Player field it resolves to. Add one line here per new `stat` trait —
-## see docs/traits.md's Property/Parameter Reference.
+## see docs/design/traits.md's Property/Parameter Reference.
 const KNOWN_STAT_PROPERTIES: Array[String] = [
 	"noise_radius",
 	"vision_range",
@@ -12,7 +12,7 @@ const KNOWN_STAT_PROPERTIES: Array[String] = [
 ]
 
 ## Authored dispatch: every recognized `detection_modifier`-kind parameter name
-## and the guard-side comparison it adjusts — see docs/traits.md's
+## and the guard-side comparison it adjusts — see docs/design/traits.md's
 ## Property/Parameter Reference.
 const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
 	"guard_inner_range",
@@ -22,7 +22,7 @@ const KNOWN_DETECTION_MODIFIER_PARAMETERS: Array[String] = [
 ]
 
 ## Authored dispatch: every recognized `flag`-kind name and the boolean
-## capability it toggles — see docs/traits.md's Property/Parameter Reference.
+## capability it toggles — see docs/design/traits.md's Property/Parameter Reference.
 const KNOWN_FLAGS: Array[String] = [
 	"chest_opens_on_adjacent",
 	"emits_noise_while_waiting",
@@ -30,28 +30,28 @@ const KNOWN_FLAGS: Array[String] = [
 ]
 
 ## Authored dispatch: every recognized `charge`-kind trigger name and the
-## charge pool it grants — see docs/traits.md's Property/Parameter Reference.
+## charge pool it grants — see docs/design/traits.md's Property/Parameter Reference.
 const KNOWN_CHARGE_TRIGGERS: Array[String] = [
 	"on_capture",
 	"on_sustained_detection_window",
 ]
 
 ## Authored dispatch: every recognized `chance`-kind trigger name — see
-## docs/traits.md's Property/Parameter Reference.
+## docs/design/traits.md's Property/Parameter Reference.
 const KNOWN_CHANCE_TRIGGERS: Array[String] = [
 	"on_move",
 	"on_turn_end",
 ]
 
 ## Authored dispatch: every recognized `chance`-kind outcome type — see
-## docs/traits.md's Property/Parameter Reference.
+## docs/design/traits.md's Property/Parameter Reference.
 const KNOWN_CHANCE_OUTCOME_TYPES: Array[String] = [
 	"noise_multiplier",
 	"alert_burst",
 ]
 
 ## Authored dispatch: every recognized `perception`-kind mode — see
-## docs/traits.md's Property/Parameter Reference.
+## docs/design/traits.md's Property/Parameter Reference.
 const KNOWN_PERCEPTION_MODES: Array[String] = [
 	"hearing_through_walls",
 ]
