@@ -1,7 +1,7 @@
 # Epic: GameData & Trait Application System
 
 ## Context
-`docs/traits.md` has 23 locked traits (12 positive, 11 negative) authored across six effect kinds (`stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`). Nothing reads that content yet — no `GameData` autoload, no application logic, no `.json` files in the project. This epic builds the system that turns that authored content into real player state.
+`docs/design/traits.md` has 23 locked traits (12 positive, 11 negative) authored across six effect kinds (`stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`). Nothing reads that content yet — no `GameData` autoload, no application logic, no `.json` files in the project. This epic builds the system that turns that authored content into real player state.
 
 The functional goal is straightforward. The architectural goal is the one Ray flagged as important enough to write down everywhere: this touches several of the most sensitive files in the codebase (`GuardStateMachine._check_detection()`, `Guard.interact()`/`Player.interact()`, `MacGuffin.on_proximity_changed()`), and a sloppy implementation would mean bolting a growing `match` statement onto each of them as more traits get added. That has to not happen. See the Technical Notes below for the full reasoning; the short version is that dispatch logic belongs in exactly one place, and every gameplay call site a trait touches gets exactly one clean, narrowly-named method call — never a branch on trait names or effect-kind strings.
 
@@ -20,7 +20,7 @@ The functional goal is straightforward. The architectural goal is the one Ray fl
 - Slippery (`charge`, `on_capture`)
 - Cat Burglar (`flag`, `chest_opens_on_adjacent`) — baseline chests now require a bump to open (`is_interactable`/`interact()`, shipped separately in PR #33 — the same pattern guard capture uses, already costing a turn via `try_move_to()`'s unconditional `end_turn()`). Cat Burglar bypasses that requirement: the chest also implements `on_proximity_changed()`, checking `Proximity.ADJACENT` plus this flag, and calls the same acquire logic `interact()` uses — worth extracting into one shared private method rather than duplicating it. Opens automatically as the holder passes by; no bump needed.
 
-**Negative traits, added after the positive list was locked (source: `docs/traits.md`'s Negative Traits section):**
+**Negative traits, added after the positive list was locked (source: `docs/design/traits.md`'s Negative Traits section):**
 - Two Left Feet (`stat`, `noise_radius`) — mirrors Padfoot, inverse delta.
 - Nearsighted (`stat`, `vision_range`) — mirrors Keen Eyes, inverse delta.
 - Big Target (`detection_modifier`, `guard_inner_range`) — mirrors Camouflage, inverse delta.
@@ -45,7 +45,7 @@ The functional goal is straightforward. The architectural goal is the one Ray fl
 - Equipment, treasures, and everything under "data-ready, behavior deferred" above.
 
 ## Acceptance Criteria
-1. `GameData` autoload exists, loads trait definitions (source content: `docs/traits.md`; converting it to real `.json` file(s) is part of this epic — organization as one file or many is implementation's call).
+1. `GameData` autoload exists, loads trait definitions (source content: `docs/design/traits.md`; converting it to real `.json` file(s) is part of this epic — organization as one file or many is implementation's call).
 2. At load time, `GameData` validates every trait's `property`/`parameter`/`flag`/`trigger`/`outcome.type` name against the known, authored set and logs a clear error for anything unrecognized — no silent no-ops on a typo.
 3. A new `PlayerTraitState` utility (see Technical Notes) is held on `Player` and exposes one narrowly-named method per currently-defined `detection_modifier`/`flag`/`charge`/`perception`/`chance` effect — not a generic string-keyed getter.
 4. `stat`-kind traits are applied via an authored dispatch (a `match` or a small `Dictionary` of `Callable`s) writing directly to `Player`'s real typed fields (`Player.noise_radius`, `Player.fov.max_range`, etc.). No `Object.set()`/`set_indexed()` or any other reflection anywhere in the trait system.

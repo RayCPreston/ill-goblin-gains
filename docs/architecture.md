@@ -131,5 +131,5 @@ SOUTH=90, SOUTH_WEST=135, WEST=180, NORTH_WEST=225
 - Guard state machine for dogs (same Guard class, no segmented cone, increased hearing radius, can't open doors)
 - Patrol routes — removed from scope; random destinations (overridden by POI in CURIOUS and LKP/range-clamped destinations in ALERT) are working well and considered sufficient
 - WorldState.ALERT driven by non-guard entities (cameras, laser traps — architecture supports it, no entities exist yet)
-- Procedural generation (design in `docs/procgen.md`, not blocking current work)
+- Procedural generation (design in `docs/design/procgen.md`, not blocking current work)
 - Inventory / MacGuffin pickup (placeholder only — see `CLAUDE.md`)
