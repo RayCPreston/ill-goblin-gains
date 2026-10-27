@@ -30,3 +30,10 @@ The heaviest negative trait, by design — flagged in the epic as needing its ow
 3. With Narcolepsy active, roughly 1 in 50 turns triggers `is_sleeping` for `3` turns.
 4. The player regains control automatically once the duration elapses — no manual intervention needed.
 5. Juice (Z's/sawing log) is out of scope for this story's acceptance; note it as a follow-up if not included.
+
+## Juice Direction (from Ray)
+Small little "z"s appear above whoever is sleeping — not just the player. Because `is_sleeping` lives on `Entity`, a guard put to sleep (e.g. by a future sleeping dart) should get the same z's.
+
+Build it on the existing floating-text system (`FloatingTextRequest` → `GameEvents.text_emitted` → `VfxManager`), the same way Allergies' alert burst shows its text: one request per sleeping turn, anchored to the sleeper's cell. Keep it small and quiet — lowercase, a smaller `font_size` than the alert burst, a soft color — so it reads as the opposite of a loud "ACHOO!". Keep the default `fov_gated = true` so a sleeping guard in fog of war doesn't give itself away.
+
+Like Allergies' `text`, the z text should come from the trait data (e.g. a `"text": "z"` field on the `sleep` outcome) rather than being hardcoded in `Player`.
