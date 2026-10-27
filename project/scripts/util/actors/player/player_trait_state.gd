@@ -13,6 +13,9 @@ var _seen_this_turn: bool = false
 var _outer_zone_suppressed_while_waiting: bool = false
 var _move_noise_multiplier_chance: int = 0
 var _move_noise_multiplier: int = 1
+var _turn_end_alert_burst_chance: int = 0
+var _turn_end_alert_burst_radius: int = 0
+var _turn_end_alert_burst_text: String = ""
 var _reveals_macguffin_direction: bool = false
 var _eavesdrop_radius: int = 0
 
@@ -111,6 +114,27 @@ func check_on_move_chance_effects() -> int:
 	if randi() % _move_noise_multiplier_chance == 0:
 		return _move_noise_multiplier
 	return 1
+
+func set_turn_end_alert_burst_chance(one_in: int, radius: int, text: String) -> void:
+	_turn_end_alert_burst_chance = one_in
+	_turn_end_alert_burst_radius = radius
+	_turn_end_alert_burst_text = text
+
+## Rolls every `chance`-kind trait triggered `on_turn_end`. Returns the radius
+## of the guard-alerting burst to fire this turn (0 if nothing procced). Called
+## once from Player.end_turn(), so every turn the player spends rolls exactly
+## once — moves, waits, bumps, and interacts alike.
+func check_on_turn_end_chance_effects() -> int:
+	if _turn_end_alert_burst_chance <= 0:
+		return 0
+	if randi() % _turn_end_alert_burst_chance == 0:
+		return _turn_end_alert_burst_radius
+	return 0
+
+## The floating text the alert burst shows when it fires (e.g. Allergies'
+## "ACHOO!"), straight from the trait data. Empty means no text.
+func alert_burst_text() -> String:
+	return _turn_end_alert_burst_text
 
 func reveals_macguffin_direction() -> bool:
 	return _reveals_macguffin_direction

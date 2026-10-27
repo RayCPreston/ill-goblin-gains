@@ -8,6 +8,13 @@ var traits: PlayerTraitState = PlayerTraitState.new()
 var treasure_hound: TreasureHoundIndicator = TreasureHoundIndicator.new()
 const NOISE_SPREAD_FACTOR: float = 1.0
 const NOISE_TEXT_CHANCE: float = 0.6
+const ALERT_BURST_FONT_SIZE: int = 16  # PixelOperator8 stays crisp at multiples of 8
+const ALERT_BURST_COLOR: Color = Color(0.9, 0.15, 0.1, 0.9)
+const ALERT_BURST_SPREAD: float = 4.0
+const ALERT_BURST_RISE_PIXELS: float = 20.0
+const ALERT_BURST_DURATION: float = 1.4
+const ALERT_BURST_SHAKE_STRENGTH: int = 2
+const ALERT_BURST_SHAKE_JOLTS: int = 8
 
 var noise_radius: int = 2
 var smell_radius: int = 0
@@ -91,6 +98,11 @@ func wait() -> void:
 		_emit_noise()
 	super()
 
+func end_turn() -> void:
+	if not RunState.is_run_over:
+		_emit_alert_burst(traits.check_on_turn_end_chance_effects())
+	super()
+
 func _compute_fov() -> void:
 	vision_updated.emit(fov.compute(cell))
 
@@ -100,16 +112,33 @@ func _emit_noise(radius_multiplier: int = 1) -> void:
 		var request: FloatingTextRequest = FloatingTextRequest.create("*sneak*", cell)
 		request.spread_radius = float(radius * Constants.TILE_SIZE) * NOISE_SPREAD_FACTOR
 		GameEvents.text_emitted.emit(request)
+	_alert_guards_within(radius)
+
+func _emit_smell() -> void:
+	_alert_guards_within(smell_radius)
+
+## A one-off guard-alerting burst (e.g. Allergies' sneeze). `radius` comes
+## straight from traits.check_on_turn_end_chance_effects() — 0 means nothing
+## fired this turn.
+func _emit_alert_burst(radius: int) -> void:
+	if radius <= 0:
+		return
+	var text: String = traits.alert_burst_text()
+	if not text.is_empty():
+		var request: FloatingTextRequest = FloatingTextRequest.create(text, cell)
+		request.font_size = ALERT_BURST_FONT_SIZE
+		request.color = ALERT_BURST_COLOR
+		request.spread_radius = ALERT_BURST_SPREAD
+		request.rise_pixels = ALERT_BURST_RISE_PIXELS
+		request.duration = ALERT_BURST_DURATION
+		GameEvents.text_emitted.emit(request)
+	shake(ALERT_BURST_SHAKE_STRENGTH, ALERT_BURST_SHAKE_JOLTS)
+	_alert_guards_within(radius)
+
+func _alert_guards_within(radius: int) -> void:
 	var alerted_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, radius)
 	for alerted_cell: Vector2i in alerted_cells:
 		var actor: Entity = GridManager.get_actor_at_cell(alerted_cell)
-		if actor is Guard:
-			actor.react_to_proximity(cell)
-
-func _emit_smell() -> void:
-	var smelled_cells: Array[Vector2i] = ProximityAlert.new().compute(cell, smell_radius)
-	for smelled_cell: Vector2i in smelled_cells:
-		var actor: Entity = GridManager.get_actor_at_cell(smelled_cell)
 		if actor is Guard:
 			actor.react_to_proximity(cell)
 
