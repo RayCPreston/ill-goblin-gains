@@ -40,12 +40,14 @@ const KNOWN_CHARGE_TRIGGERS: Array[String] = [
 ## docs/traits.md's Property/Parameter Reference.
 const KNOWN_CHANCE_TRIGGERS: Array[String] = [
 	"on_move",
+	"on_turn_end",
 ]
 
 ## Authored dispatch: every recognized `chance`-kind outcome type — see
 ## docs/traits.md's Property/Parameter Reference.
 const KNOWN_CHANCE_OUTCOME_TYPES: Array[String] = [
 	"noise_multiplier",
+	"alert_burst",
 ]
 
 ## Authored dispatch: every recognized `perception`-kind mode — see
@@ -220,6 +222,10 @@ func _apply_chance(effect: Dictionary, player: Player) -> void:
 	if trigger == "on_move" and outcome_type == "noise_multiplier":
 		var multiplier: int = int(outcome.get("multiplier", 1))
 		player.traits.set_move_noise_multiplier_chance(one_in, multiplier)
+	elif trigger == "on_turn_end" and outcome_type == "alert_burst":
+		var radius: int = int(outcome.get("radius", 0))
+		var text: String = outcome.get("text", "")
+		player.traits.set_turn_end_alert_burst_chance(one_in, radius, text)
 
 func _apply_perception(effect: Dictionary, player: Player) -> void:
 	var mode: String = effect.get("mode", "")

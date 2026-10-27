@@ -12,12 +12,18 @@ var blocks_vision: bool = false
 var allows_player_vision: bool = false
 var tween_duration: float = 0.3
 
+const SHAKE_STRENGTH: int = 2
+const SHAKE_JOLTS: int = 6
+const SHAKE_JOLT_DURATION: float = 0.04
+
 signal turn_ended
 
 enum  Proximity { NONE, ADJACENT, OVERLAPPED }
 
 var cell: Vector2i
 var _tween: Tween
+var _shake_tween: Tween
+var _shake_rest: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	cell = world_to_cell(position)
@@ -87,6 +93,26 @@ func tweened_move(target_cell: Vector2i) -> void:
 	_tween.tween_property(self, "position", world_cell, tween_duration)\
 		.set_trans(Tween.TRANS_QUINT)\
 		.set_ease(Tween.EASE_OUT)
+
+## Jitters the `Sprite2D` child side to side in whole-pixel jolts that taper
+## off. Moves the sprite rather than the Entity itself so it never fights
+## tweened_move() over `position` (or drags the camera along with it).
+func shake(strength: int = SHAKE_STRENGTH, jolts: int = SHAKE_JOLTS) -> void:
+	var sprite: Node2D = get_node_or_null("Sprite2D") as Node2D
+	if sprite == null:
+		return
+	if _shake_tween:
+		_shake_tween.kill()
+		sprite.position = _shake_rest
+	_shake_rest = sprite.position
+	_shake_tween = create_tween()
+	for i: int in jolts:
+		var amplitude: int = maxi(1, roundi(float(strength * (jolts - i)) / float(jolts)))
+		var side: int = 1 if i % 2 == 0 else -1
+		var jolt: Vector2 = Vector2(side * amplitude, randi_range(-1, 0))
+		_shake_tween.tween_callback(sprite.set_position.bind(_shake_rest + jolt))
+		_shake_tween.tween_interval(SHAKE_JOLT_DURATION)
+	_shake_tween.tween_callback(sprite.set_position.bind(_shake_rest))
 
 func refresh_visibility() -> void:
 	var visibility_state = VisionManager.get_state(cell)

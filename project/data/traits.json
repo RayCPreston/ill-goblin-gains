@@ -250,5 +250,21 @@
       "radius": 6,
       "marker": "unknown"
     }
+  },
+  {
+    "id": "allergies",
+    "name": "Allergies",
+    "type": "negative",
+    "description": "You have a chance to sneeze every so often, alerting guards within a radius. A juiced \"ACHOO!\" radiates out when it happens.",
+    "effect": {
+      "kind": "chance",
+      "trigger": "on_turn_end",
+      "one_in": 25,
+      "outcome": {
+        "type": "alert_burst",
+        "radius": 10,
+        "text": "ACHOO!"
+      }
+    }
   }
 ]

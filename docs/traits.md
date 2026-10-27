@@ -56,7 +56,8 @@ Bridges each trait's data to where it actually needs to be read in code. Consoli
 | `smell_radius` | `Player.smell_radius` | Currently hardcoded to `3` for every player as a preview (see `docs/architecture.md`'s VFX section) — needs to revert to a true baseline (likely `0`) once this is wired through `GameData`, so smell becomes something only Smelly-holders actually have |
 | `vision_min_range` | New `PlayerFov.min_range` field | Doesn't exist in code yet. Needs adding, plus a `row >= min_range` condition on the existing `VisionState.VISIBLE`-marking line in `_scan()`. Contained change — the shadow-splitting recursion is driven entirely by `is_opaque` transitions, independent of the visibility-marking decision, so this doesn't touch the recursion or guard detection (a fully separate system) at all |
 | `on_move` (chance trigger) | `Player.move_to()` | Same point `_emit_noise()`/`_emit_smell()` already fire from |
-| `on_turn_end` (chance trigger) | `Player.move_to()` and `Player.wait()` | Both end the player's turn — fires regardless of move vs. wait |
+| `on_turn_end` (chance trigger) | `Player.end_turn()` | Rolls once on every turn the player spends — moves, waits, bumps, and interacts alike — skipped once the run is over |
+| `alert_burst` (chance outcome type) | `Player._emit_alert_burst()` → `ProximityAlert` | Same guard reaction as a sound pulse, at the outcome's own `radius`. Juice fires from the same method: the outcome's `text` as loud red floating text (none if `text` is omitted) plus a sprite shake via `Entity.shake()` |
 | `sleep` (chance outcome type) | New `Entity.is_sleeping` field + turn-skip enforcement in `Player._unhandled_input()` | Deferred — see Narcolepsy's note. `is_sleeping` belongs on `Entity`, not `Player`, so a future item like sleeping darts can put a `Guard` to sleep with the same flag |
 | `emits_noise_while_waiting` (flag) | `Player.wait()` | `wait()` currently never emits noise at all — this flag adds a conditional call there |
 
@@ -322,7 +323,7 @@ Full detail in `docs/stories/game-data-trait-application.md` — the short versi
     "outcome": {
       "type": "alert_burst",
       "radius": 10,
-      "juice": "achoo_text"
+      "text": "ACHOO!"
     }
   }
 }
