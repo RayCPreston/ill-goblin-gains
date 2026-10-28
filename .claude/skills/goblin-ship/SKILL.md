@@ -1,6 +1,6 @@
 ---
 name: goblin-ship
-description: Ship finished work in Ill Goblin Gains in two halves. First, put it on a feature branch, commit, push, and hand Ray a pre-filled PR link plus description. Ray opens and squash-merges the PR on GitHub himself. Then, once Ray confirms the merge, verify it landed, reset the local checkout to an up-to-date master, and delete the stale branch. Use when Ray invokes /goblin-ship, asks to ship or land the current work, or says a shipped PR is merged. Invoking it is Ray's go-ahead to commit and push; it still stops on any failed check or ambiguity.
+description: Ship finished work in Ill Goblin Gains in two halves. First, put it on a feature branch, commit, push, and hand Ray a pre-filled PR link plus description. Ray opens and squash-merges the PR on GitHub. Then, once Ray confirms the merge, verify it landed, reset the local checkout to an up-to-date master, and delete the stale branch. Use when Ray invokes /goblin-ship, asks to ship or land the current work, or says a shipped PR is merged. Invoking it is Ray's go-ahead to commit and push; it still stops on any failed check or ambiguity.
 argument-hint: "[PR title or branch name]"
 ---
 
