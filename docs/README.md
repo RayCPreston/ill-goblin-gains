@@ -8,6 +8,7 @@ Where to look, depending on the question:
 | How does it work today? | [`systems/`](systems/) |
 | Why is it built this way? | [`decisions/`](decisions/) |
 | What's being built right now? | [`stories/`](stories/) |
+| What's known to be broken? | [`bugs/`](bugs/) |
 
 ## Design: intent
 
@@ -56,6 +57,12 @@ Short numbered records: context, decision, alternatives, consequences. Decisions
 ## Stories: work in flight
 
 Specs for work being built. When a story ships, it's **harvested**: what was built goes into `systems/`, notable choices go into `decisions/`, and then the story is deleted.
+
+## Bugs: known and not yet fixed
+
+One file per bug, named `bug-NN-<name>.md`, with severity, symptom, cause, where, fix direction, and done-when. Each is also noted in its systems page's Gotchas. Numbers are never reused.
+
+When a bug is fixed, the same PR deletes its file and removes or updates the Gotcha.
 
 ## Maintaining these docs
 

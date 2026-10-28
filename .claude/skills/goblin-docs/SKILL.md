@@ -18,6 +18,7 @@ Request: **$ARGUMENTS**
 | `docs/systems/` | How does it work **today**? One page per system | Code changes |
 | `docs/decisions/` | Why is it this way? Short numbered records | A non-obvious choice is made, or an old one is overturned |
 | `docs/stories/` | What's being built right now? | Work starts, or ships and is harvested |
+| `docs/bugs/` | What's known to be broken? One file per bug, `bug-NN-<name>.md` | A bug is found (also note it in its systems page's Gotchas), or fixed (delete the file and the Gotcha) |
 
 `docs/README.md` is the index. Keep it current whenever pages are added, renamed, or removed.
 

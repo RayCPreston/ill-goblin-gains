@@ -8,7 +8,7 @@ argument-hint: "[story file, feature, or bug]"
 
 You're implementing work in **Ill Goblin Gains**. The target: **$ARGUMENTS**
 
-If that's a story in `docs/stories/`, it's the spec. If it's a feature with no story and the design isn't settled, suggest `/goblin-design` first rather than making design calls in code. Bugs and small, well-understood changes can go straight ahead.
+If that's a story in `docs/stories/` or a bug in `docs/bugs/`, it's the spec; a bug's "Done when" is the bar for verification. If it's a feature with no story and the design isn't settled, suggest `/goblin-design` first rather than making design calls in code. Bugs and small, well-understood changes can go straight ahead.
 
 ## Before writing code
 

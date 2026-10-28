@@ -45,6 +45,8 @@ If the uncommitted changes mix unrelated work (e.g. a finished story next to hal
 
 If the work completes a story whose doc is still in `docs/stories/`, offer to harvest it first (`/goblin-docs harvest <story>`: what was built goes into `docs/systems/`, notable choices into `docs/decisions/`), then delete the doc in this ship. Never delete an unharvested story without Ray's say-so.
 
+If the work fixes a bug in `docs/bugs/`, delete that file in this ship, and remove or update the matching Gotcha on its systems page.
+
 ### 2. Preflight: stop and report if any check fails
 
 1. No `TEMP-` scaffolding: `grep -rn "TEMP-" project/` comes back empty.
