@@ -13,7 +13,7 @@ If that's a story in `docs/stories/`, it's the spec. If it's a feature with no s
 ## Before writing code
 
 1. Read the story end to end, including Scope, Out of scope, and Acceptance Criteria.
-2. Read `CLAUDE.md` (Core Conventions, Don'ts, Current State). Its conventions are binding and this skill builds on them. Read the `docs/systems/` pages for the systems you'll touch (falling back to `docs/architecture.md` where no page exists yet), and `docs/design/game-design-doc.md` when you need the design intent behind something.
+2. Read `CLAUDE.md` (Core Conventions, Don'ts, Current State). Its conventions are binding and this skill builds on them. Read `docs/systems/README.md` and the systems pages for what you'll touch, and `docs/design/game-design-doc.md` when you need the design intent behind something.
 3. Read the code you'll change and its neighbors. Match what's there.
 4. Find the owner. For each new responsibility, decide which manager owns it (table below) before writing anything.
 
@@ -106,7 +106,7 @@ Launch the game and observe the result before reporting. Don't hand verification
 - **Commit or push only when Ray asks.** Keep the implementation commit separate from the "Delete completed <name> story" commit. Write messages to a file and use `git commit -F <file>`. Never chain heredocs with `&&`, which has mangled messages before.
 - **GitHub access:** pass the deploy key on each command and never put it in git config: `git -c core.sshCommand="ssh -i ~/.ssh/id_ed25519_claude_treasure_goblin -o IdentitiesOnly=yes -o BatchMode=yes" fetch|push ...`.
 - **Story docs** are deleted only when the work is done and Ray asks, and only after `/goblin-docs harvest` has folded the story into `docs/systems/` and `docs/decisions/`.
-- **Docs:** when you change architecture surface (a new manager, utility, signal, or data kind), update the affected `docs/systems/` page in the same change, using `/goblin-docs <system>` (or `docs/architecture.md` if that system has no page yet). Record any non-obvious choice you made with `/goblin-docs decision`. Trait work also updates `docs/design/traits.md`'s reference table.
+- **Docs:** when you change architecture surface (a new manager, utility, signal, or data kind), update the affected `docs/systems/` page in the same change, using `/goblin-docs <system>`. Keep `docs/systems/README.md`'s autoload and signal tables current too. Record any non-obvious choice you made with `/goblin-docs decision`. Trait work also updates `docs/design/traits.md`'s reference table.
 - **Line endings:** some files are CRLF and some LF. Preserve whatever a file already uses.
 
 ## Reporting

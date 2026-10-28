@@ -30,7 +30,7 @@ Compare the docs to the code and report a short, prioritized list:
 - systems with no page;
 - pages whose "last verified" commit is old, or which describe code that has since changed (check `git log <sha>..HEAD -- <files the page links>`);
 - decisions visible in code or git history but never recorded;
-- drift in `CLAUDE.md`'s Current State or `docs/architecture.md`, which are both being replaced by `docs/systems/`;
+- drift in `CLAUDE.md`'s Current State pointers, or in `docs/systems/README.md`'s autoload and signal tables;
 - stories that shipped but were never harvested.
 
 Then ask Ray what to tackle. Don't write pages in audit mode.
@@ -43,7 +43,7 @@ Use [systems-page-template.md](systems-page-template.md) and save to `docs/syste
 - **Links:** link to files and symbols with repo-relative paths (`project/autoloads/grid_manager.gd`). Don't paste large code blocks; the page explains, the code is linked.
 - **Extending:** include an "Extending it" section showing how to add the next one (another trait, guard type, text effect), following the `/goblin-dev` no-bolt-ons standard.
 - **Last verified:** stamp the "Last verified" line with the current short commit SHA and date.
-- **Retire superseded content:** when a page fully covers something in `docs/architecture.md` or `CLAUDE.md`'s Current State, remove it from there, leaving a pointer. Once `architecture.md` is empty, delete it.
+- **Keep the overview current:** when a page adds or changes an autoload or signal, update the tables in `docs/systems/README.md`. `CLAUDE.md`'s Current State holds only short pointers to pages. Keep it that way, never duplicating page content there.
 
 ### `decision <topic>`: record a decision
 Use [decision-template.md](decision-template.md) and save to `docs/decisions/NNNN-<kebab-title>.md`, where NNNN is the next free number.

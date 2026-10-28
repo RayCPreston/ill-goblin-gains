@@ -19,7 +19,7 @@ Read before proposing anything. Read the sections that matter, not everything.
 1. **`docs/design/game-design-doc.md`: primary reference and source of truth.** Find every section the topic touches and quote or cite it while you discuss. If the GDD already decides something, that's the starting point. Don't redesign it silently.
 2. **`docs/systems/` and `docs/decisions/`** (falling back to `CLAUDE.md` → Current State / What's Next where no systems page exists yet). What's actually built, and why past choices were made. Don't propose undoing a recorded decision without naming it. Where the GDD and the implementation disagree (example: the GDD describes predictable patrol routes, but random destinations shipped and routes were cut), say so and ask which one wins. Don't pick one quietly.
 3. **`docs/design/traits.md`**: when traits, items, or the six effect kinds (`stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`) are involved.
-4. **`docs/architecture.md`**, and `docs/design/procgen.md` when level generation is involved. Use these only to check feasibility. Design leads and architecture follows, but name it when an idea fights the existing systems.
+4. **`docs/systems/README.md`** (who owns what) and the systems pages the idea touches, plus `docs/design/procgen.md` when level generation is involved. Use these only to check feasibility. Design leads and architecture follows, but name it when an idea fights the existing systems.
 5. **`docs/stories/`**: open stories, so you don't duplicate one and can see how this design lands next to them.
 
 ## Design pillars

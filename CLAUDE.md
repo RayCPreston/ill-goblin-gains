@@ -10,7 +10,7 @@ Turn-based stealth roguelike in Godot 4 (GDScript). Player is a goblin infiltrat
 ## Reference Docs
 - `docs/design/game-design-doc.md` — source of truth for all design questions (mechanics, traits, equipment, world/guard/security details)
 - `docs/README.md` — index of all docs: `design/` (intent), `systems/` (how it works today, one page per system), `decisions/` (why), `stories/` (work in flight)
-- `docs/architecture.md` — system design and autoload responsibilities; being split into `docs/systems/` pages and retired as they land
+- `docs/systems/README.md` — systems overview: which autoload owns what, the signal map, and one page per system
 - `docs/design/procgen.md` — procedural generation design notes (not yet implemented, not blocking current work)
 
 ## Skills
@@ -31,68 +31,38 @@ Project skills live in `.claude/skills/`.
 - **Turn order.** Player acts first, then all world entities in registration order (`TurnManager`).
 - **Utility classes as RefCounted.** `GuardFov`, `GuardStateMachine`, `StateMachine`, `PlayerFov`, `ProximityAlert` — not Nodes, not in the scene tree.
 - **Utility class location.** `scripts/util/` for generic utilities, `scripts/util/actors/guard/` for guard-specific, `scripts/util/actors/player/` for player-specific.
+- **Trait logic stays in `GameData` and `PlayerTraitState`.** Gameplay call sites make one narrowly named accessor call; nothing else branches on a trait id, effect kind, or property name, and nothing uses reflection (`docs/decisions/0001`, `0002`).
 
 ## Don'ts
 - Don't use Godot's physics engine for anything.
-- Don't use `tile_data.modulate` for colored overlays — it's multiplicative and breaks on dark tiles. Use `_draw` with Rect2 overlays instead. `tile_data.modulate` is only for player FOV (VISIBLE/REMEMBERED/UNSEEN).
+- Don't use `tile_data.modulate` for colored overlays — it's multiplicative and breaks on dark tiles. Use `_draw` with Rect2 overlays instead. `tile_data.modulate` is only for player FOV (VISIBLE/REMEMBERED/UNSEEN). (`docs/decisions/0016`)
 - Don't put behavioral logic directly on Entity subclasses. Extract state machines and FOV computation into utility classes.
 - Don't bake dynamic obstacles into AStarGrid2D. Check at move-attempt time via `GridManager.is_cell_available`.
 
 ## Current State
 
-### Movement & Grid
-Fully grid-based, no physics. All spatial logic through `GridManager` dictionaries. Turn order: player acts first, then all world entities. Player has 360° symmetric shadowcasting FOV with fog of war (VISIBLE / REMEMBERED / UNSEEN tile states).
+### Turns and the Grid
+Turn order, `GridManager`/`TileManager`, `Entity` flags and the move-attempt order, proximity notifications, A* pathfinding: `docs/systems/turn-and-grid.md` (decision: `docs/decisions/0018`). Player FOV and fog of war: `docs/systems/vision-and-fog.md` (nothing may leak through fog: `docs/decisions/0017`).
 
-### Guard System — Fully Implemented
-- `PATROL` — directional cone (green, segmented inner/outer zones), random destination patrol.
-- `CURIOUS` — 360° vision (yellow, segmented), investigates POI, returns to patrol point if player not found.
-- `ALERT` — 360° vision (red, unsegmented), converges on global Last Known Position (LKP).
-- ALERT is a permanent world-level ratchet for the run — any entity can trip it.
-- Predictive tracking — guards project POI/LKP forward along last observed player direction for a few turns after losing sight (`GuardStateMachine.TRACKING_MEMORY`), sliding around blocked corners instead of dead-ending on the first wall.
-- Direction is captured from any two sightings, not just consecutive turns — a single glimpse is enough to give a guard a heading to chase.
-- CURIOUS guards spend a short search-hop dwell (`POI_SEARCH_HOPS`/`POI_SEARCH_RADIUS`) checking nearby cells after reaching their point of interest before giving up and returning to patrol.
-- `GuardStateMachine.react_to_proximity(source_cell)` (renamed from `_on_outer_detection`) is the single PATROL/CURIOUS/ALERT dispatch both vision-outer-zone sightings and the sound system below funnel through.
-- Generic `StateMachine` utility in place — will power cameras, dogs, laser traps, etc.
+### Guard System
+PATROL / CURIOUS / ALERT state machine, cones, detection, predictive tracking, LKP convergence, capture: `docs/systems/guards.md`. Key decisions: patrol routes cut (`docs/decisions/0008`), sighting checked before the player moves (`0009`), heading extrapolation (`0010`), ALERT is permanent for the run (`0011`).
 
-### Proximity Alert System (Sound) — Fully Implemented
-- `ProximityAlert` (`scripts/util/proximity_alert.gd`) is a generic BFS flood-fill: `compute(origin, radius) -> Array[Vector2i]`, blocked by the same opacity/vision-blocking data `GuardFov` uses, with corner-cutting prevention matching `TileManager`'s `AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES` convention. Sound propagates like a gas (wraps corners) rather than vision's straight-line LOS.
-- Triggered on every completed `Player.move_to()` (not `wait()`) at `Player.noise_radius` (default 2, overridable by traits — see Trait & GameData System below).
-- Every guard whose cell falls in the flood-filled area calls `react_to_proximity()`, reacting exactly as if it saw the player in its outer vision zone.
-- Deliberately generic and reusable: a future "Smelly" hook trait or thrown item (smoke bomb, alarm clock) can call the same `compute()` with a different origin/radius/trigger. Smoke bombs/gases need a *persistent, evolving* version (an expanding, dissipating cloud) — a meaningfully different problem, deferred to its own story once equipment exists.
+### Sound and Smell
+`ProximityAlert` flood fill, what makes noise (steps, smell, alert bursts), how guards react, Eavesdropper's reverse use: `docs/systems/sound-and-smell.md`. Key decision: sound floods around corners and is heard like an outer-zone glimpse (`docs/decisions/0012`).
 
 ### Doors
-Proximity-driven open/peek/closed states. Peeked state blocks guard vision but player can see through. Guards cannot open doors yet (planned: humans can, dogs cannot). Visual sprite state is decoupled from logical state: while a door is only `REMEMBERED` (outside current player FOV), its sprite freezes at whatever was last actually observed rather than live-updating as guards pass through it off-screen — otherwise door animation would leak guard movement through fog of war.
+Closed / peeked / open by proximity, the goblin-only peek, guards walking through, the fog-of-war sprite freeze: `docs/systems/doors.md` (decision: `docs/decisions/0019`).
 
-### Session End — Fully Implemented
-Capture, a placeholder MacGuffin, a win condition, and a restart loop all work end to end.
-- Capture is bidirectional via `Entity.is_interactable`/`interact()`: `Guard.interact()` and `Player.interact()` each call `RunState.lose()` when the other type is the source. `Guard.step_along_path()` lets a move through to `try_move_to()` when the blocking occupant is interactable, so a guard walking into the player triggers it too (not just the reverse).
-- MacGuffin is a placeholder: the existing `chest.tscn` scene got a `macguffin.gd` script (furniture, `is_interactable = true`, blocks movement). Picked up via the same bump-interact pattern as guard capture (`interact()`, triggered when `try_move_to()` finds an interactable occupant at the target cell) — bumping it already costs a turn like any other action, via the existing unconditional `end_turn()`. No JSON, no on-pickup effect yet — intentionally deferred to the Trait & Equipment System below, since the GDD's MacGuffin behavior (e.g. a barking corgi) is mechanically a hook trait.
-- Win is simplified: walking off the map edge (`TileManager.is_in_bounds()` check in `Player.try_move_to()`) while holding the MacGuffin triggers `RunState.win()`. No dedicated Exit entity yet — reasonable placeholder, will likely need a real exit (tied to a door/room) once procgen exists.
-- `RunState` (autoload) holds `has_macguffin`, `is_run_over`, `outcome`. `GameEvents.run_ended(won, cause)` signal drives a modal `EndScreen` (`scenes/ui/end_screen.tscn`) showing outcome + cause.
-- `TurnManager` and `Player._unhandled_input` both check `RunState.is_run_over` to freeze the run.
-- Restart: `restart` input action (R key) in `GameManager._unhandled_input()` resets `WorldState`, `RunState`, and guard cones, then reloads the scene.
+### Run Lifecycle
+Level load → trait roll and reveal → play → capture or escape → end screen → restart (R reloads the scene): `docs/systems/run-lifecycle.md`. Key decisions: bumping is how actors interact, for capture and MacGuffin pickup (`docs/decisions/0013`); `RunState` plus freeze plus restart-by-reload (`0014`); escaping off the map edge is a placeholder until procgen places exits (`0015`).
 
 ## What's Next
 
-### 1. Trait & GameData System — In Progress
-Being built incrementally, one trait story at a time, per `docs/stories/game-data-trait-application.md` (the epic) and `docs/stories/trait-story-NN-*.md` (per-trait stories, deleted from the repo as each lands). Full trait content (23 traits, six effect kinds: `stat`, `detection_modifier`, `charge`, `flag`, `perception`, `chance`) is authored in `docs/design/traits.md`.
+### 1. Traits — 22 of 23 Shipped
+How the trait system works (loading, rolling, applying, the six effect kinds, every gameplay touchpoint): `docs/systems/traits-and-gamedata.md`. Narcolepsy is the last trait (`docs/stories/trait-story-22-narcolepsy.md`); the epic `docs/stories/game-data-trait-application.md` stays until it ships.
 
-**Architecture landed (Story 01):**
-- `GameData` autoload (`project/autoloads/game_data.gd`) loads trait definitions from `project/data/traits.json`, validates each definition's effect kind/property against an authored known-set at load time (logs via `Log.error` and drops anything unrecognized — no silent no-ops on a typo), and applies effects to the player through an authored dispatch (`match` on property name, currently `stat`-kind only). No reflection (`Object.set()`/`set_indexed()`) anywhere.
-- `PlayerTraitState` (`project/scripts/util/actors/player/player_trait_state.gd`, `RefCounted`), held as `Player.traits`, mirrors the `Player.fov: PlayerFov` pattern. Holds `applied_ids`; will grow narrow, purpose-named accessor methods (one per `detection_modifier`/`flag`/`charge`/`perception`/`chance` effect) as later stories need them.
-- Hard architectural rule, enforced from here on: every gameplay call site a trait touches (`GuardStateMachine._check_detection()`, `Guard.interact()`, `MacGuffin.on_proximity_changed()`, etc.) gets exactly one clean, narrowly-named method call — never a `match`/`if` chain on a trait id/effect kind/property name outside `GameData` and `PlayerTraitState`.
-- Run-start trigger lives in `GameManager`, triggered by `GameEvents.level_ready` (emitted from `Level._ready()`). It now rolls a real trait loadout and calls `GameData.apply_traits()` with the rolled ids rather than a hardcoded list — see the Run Start Flow item below.
-
-**Padfoot** (`stat`, sets `Player.noise_radius` to 0) is the only trait wired end-to-end so far. Remaining traits land one PR at a time, in the order listed in the epic.
-
-**Traits modal (character screen) — landed (Story 02):** `C` (`character_menu` input action) toggles `TraitsModal` (`scenes/ui/traits_modal.tscn` / `scripts/ui/traits_modal.gd`, a shown/hidden `CanvasLayer` following the `EndScreen` precedent), listing the player's applied traits numbered 1–n; pressing a number shows that trait's name/description via `GameData.get_definition(id)`. New `UiState` autoload (`modal_open: bool`) blocks `Player._unhandled_input()` while any modal is open, without consuming a turn — the same pattern `RunState.is_run_over` already uses.
-
-### 2. Run Start Flow — Trait Rolling Landed, Main Menu Still Missing
-The game still drops straight into gameplay with no title/menu framing — that half is still needed (main menu, continue, settings).
-
-The trait-rolling half is done, per `docs/stories/run-start-trait-rolling.md`. At `GameEvents.level_ready`, `GameManager` rolls `Constants.STARTING_POSITIVE_TRAIT_COUNT` (3) positive and `Constants.STARTING_NEGATIVE_TRAIT_COUNT` (2) negative trait ids via the new generic `PoolRoller` (`scripts/util/pool_roller.gd`) sampling `GameData.get_ids_by_type("positive"/"negative")`, stores them on `RunState.loadout` (a new `RunLoadout` RefCounted utility), and applies them via the existing `GameData.apply_traits()` — replacing the old hardcoded id list. A new `RunStartModal` (`scenes/ui/run_start_modal.tscn`, following the `EndScreen`/`TraitsModal` precedent) listens for `GameEvents.loadout_rolled` and shows the rolled traits grouped positive/negative before the player can act, dismissed via a new `confirm` input action. Restarting re-rolls and re-shows it, since `_on_level_ready()` reruns on scene reload.
-
-Equipment rolling is deferred: `Constants.STARTING_ITEM_COUNT` (3) is recorded for when item content exists, but nothing rolls, displays, or applies items yet — there's no `items.json`-equivalent or inventory/use/throw system. When that lands, item rolling should reuse `PoolRoller` and extend `RunLoadout` with `item_ids`.
+### 2. Run Start Flow — Main Menu Still Missing
+The game boots straight into a run. Trait rolling and the reveal modal exist (see the traits systems page); a main menu (title, continue, settings) doesn't. Equipment rolling waits on item content: `Constants.STARTING_ITEM_COUNT` is reserved, and items should reuse `PoolRoller`.
 
 ### 3. Furniture & Hiding System
 Furniture is partially modeled: `Entity.is_furniture`, `Entity.can_hide_player` (field already exists, unused), `GridManager._furniture` dict. Needs: JSON definitions with a `hideable` field, player hide/unhide action, and guard detection interaction when player is hidden. See GDD for furniture types and hiding rules.

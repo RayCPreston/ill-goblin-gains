@@ -17,15 +17,41 @@ Where to look, depending on the question:
 
 ## Systems: current behavior
 
-One page per system, written from the code and stamped with the commit it was last verified against. Being populated. Until a system has a page here, [`architecture.md`](architecture.md) and `CLAUDE.md`'s Current State are the fallback; both shrink as pages land.
+One page per system, written from the code and stamped with the commit it was last verified against. Start with the [overview](systems/README.md): which autoload owns what, the signal map, and a suggested reading order.
 
-*No pages yet.*
+- [Traits and GameData](systems/traits-and-gamedata.md): loading, rolling, and applying traits; the six effect kinds; every place gameplay reads them.
+- [VFX and Juice](systems/vfx-and-juice.md): floating text, shake, the smell aura, and how gameplay requests effects without touching them.
+- [Guards](systems/guards.md): PATROL / CURIOUS / ALERT, vision cones, what a sighting does, predictive tracking, movement and capture.
+- [Sound and Smell](systems/sound-and-smell.md): the flood fill, what makes noise, how guards react to hearing, and Eavesdropper's reverse use.
+- [Run Lifecycle](systems/run-lifecycle.md): level load, the reveal, play, capture and escape, the end screen, restart.
+- [Vision and Fog of War](systems/vision-and-fog.md): the goblin's field of view, the three fog states, how tiles, entities and cones are drawn.
+- [Turns and the Grid](systems/turn-and-grid.md): turn order, the grid managers, entity flags and moves, proximity, pathfinding.
+- [Doors](systems/doors.md): closed / peeked / open, what each blocks, guards walking through, the fog-of-war sprite freeze.
+- [Input and Camera](systems/input-and-camera.md): controls, who handles which key, camera zoom and dead-zone following, window, logging.
 
 ## Decisions: the why
 
 Short numbered records: context, decision, alternatives, consequences. Decisions aren't rewritten; an overturned one is marked superseded by a newer record.
 
-*No records yet.*
+- [0001](decisions/0001-trait-effects-use-authored-dispatch.md): Trait effects are applied through an authored dispatch, validated at load, with no reflection
+- [0002](decisions/0002-trait-logic-behind-narrow-accessors.md): Gameplay reads traits only through narrowly named accessors
+- [0003](decisions/0003-chance-effect-kind.md): Probabilistic, recurring traits get their own effect kind, `chance`
+- [0004](decisions/0004-traits-rolled-at-run-start.md): Traits are rolled fresh each run (3 positive, 2 negative) by a generic roller
+- [0005](decisions/0005-turn-end-chance-rolls-every-spent-turn.md): Turn-end chance effects roll once on every turn the player spends
+- [0006](decisions/0006-gameplay-emits-vfx-requests.md): Gameplay emits VFX requests; it never creates or calls effects directly
+- [0007](decisions/0007-noise-shown-as-floating-text.md): Noise is shown as scattered floating text, not an expanding ring
+- [0008](decisions/0008-patrol-routes-cut.md): Patrolling guards walk to random destinations, not scripted routes
+- [0009](decisions/0009-sighting-checked-before-player-moves.md): Guards check for the goblin before the goblin's move resolves
+- [0010](decisions/0010-guards-predict-player-heading.md): Guards extrapolate the goblin's heading after losing sight
+- [0011](decisions/0011-alert-is-permanent.md): Once the world goes ALERT, it stays ALERT for the rest of the run
+- [0012](decisions/0012-sound-floods-and-is-heard-like-a-glimpse.md): Sound floods around corners, and hearing is treated as an outer-zone glimpse
+- [0013](decisions/0013-bumping-is-how-actors-interact.md): Bumping is how actors interact, both for capture and for picking up the MacGuffin
+- [0014](decisions/0014-run-state-and-restart-by-reload.md): Run outcome lives in `RunState`; a finished run freezes; restart reloads the scene
+- [0015](decisions/0015-escape-off-the-map-edge.md): For now, escaping means walking off the map edge holding the MacGuffin
+- [0016](decisions/0016-overlays-drawn-not-tile-modulated.md): Colored overlays are drawn on top of tiles; tile tinting is reserved for fog of war
+- [0017](decisions/0017-nothing-leaks-through-fog-of-war.md): Nothing on screen may reveal what's happening in unseen space
+- [0018](decisions/0018-grid-dictionaries-no-physics.md): All spatial state lives in grid dictionaries; no physics; pathfinding knows only terrain
+- [0019](decisions/0019-doors-open-by-proximity.md): Doors open and close by proximity, and the goblin can peek through them
 
 ## Stories: work in flight
 
