@@ -9,7 +9,7 @@ Turn-based stealth roguelike in Godot 4 (GDScript). Player is a goblin infiltrat
 
 ## Reference Docs
 - `docs/design/game-design-doc.md` — source of truth for all design questions (mechanics, traits, equipment, world/guard/security details)
-- `docs/README.md` — index of all docs: `design/` (intent), `systems/` (how it works today, one page per system), `decisions/` (why), `stories/` (work in flight)
+- `docs/README.md` — index of all docs: `design/` (intent), `systems/` (how it works today, one page per system), `decisions/` (why), `stories/` (work in flight), `bugs/` (known bugs, not yet fixed)
 - `docs/systems/README.md` — systems overview: which autoload owns what, the signal map, and one page per system
 - `docs/design/procgen.md` — procedural generation design notes (not yet implemented, not blocking current work)
 
