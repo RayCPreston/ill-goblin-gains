@@ -266,5 +266,21 @@
         "text": "ACHOO!"
       }
     }
+  },
+  {
+    "id": "narcolepsy",
+    "name": "Narcolepsy",
+    "type": "negative",
+    "description": "You have a chance to fall asleep for a few turns every so often, unable to act.",
+    "effect": {
+      "kind": "chance",
+      "trigger": "on_turn_end",
+      "one_in": 50,
+      "outcome": {
+        "type": "sleep",
+        "duration": 3,
+        "text": "*snooze*"
+      }
+    }
   }
 ]

@@ -16,6 +16,9 @@ var _move_noise_multiplier: int = 1
 var _turn_end_alert_burst_chance: int = 0
 var _turn_end_alert_burst_radius: int = 0
 var _turn_end_alert_burst_text: String = ""
+var _turn_end_sleep_chance: int = 0
+var _turn_end_sleep_turns: int = 0
+var _turn_end_sleep_text: String = ""
 var _reveals_macguffin_direction: bool = false
 var _eavesdrop_radius: int = 0
 
@@ -106,12 +109,9 @@ func set_move_noise_multiplier_chance(one_in: int, multiplier: int) -> void:
 
 ## Rolls every `chance`-kind trait triggered `on_move`. Returns the noise
 ## radius multiplier to apply to this move's sound pulse (1 if nothing
-## procced). Player doesn't know about probabilities or trait ids — it just
-## calls this once and passes the result straight into _emit_noise().
+## procced).
 func check_on_move_chance_effects() -> int:
-	if _move_noise_multiplier_chance <= 0:
-		return 1
-	if randi() % _move_noise_multiplier_chance == 0:
+	if _rolls(_move_noise_multiplier_chance):
 		return _move_noise_multiplier
 	return 1
 
@@ -120,21 +120,23 @@ func set_turn_end_alert_burst_chance(one_in: int, radius: int, text: String) -> 
 	_turn_end_alert_burst_radius = radius
 	_turn_end_alert_burst_text = text
 
-## Rolls every `chance`-kind trait triggered `on_turn_end`. Returns the radius
-## of the guard-alerting burst to fire this turn (0 if nothing procced). Called
-## once from Player.end_turn(), so every turn the player spends rolls exactly
-## once — moves, waits, bumps, and interacts alike.
-func check_on_turn_end_chance_effects() -> int:
-	if _turn_end_alert_burst_chance <= 0:
-		return 0
-	if randi() % _turn_end_alert_burst_chance == 0:
-		return _turn_end_alert_burst_radius
-	return 0
+func set_turn_end_sleep_chance(one_in: int, turns: int, text: String) -> void:
+	_turn_end_sleep_chance = one_in
+	_turn_end_sleep_turns = turns
+	_turn_end_sleep_text = text
 
-## The floating text the alert burst shows when it fires (e.g. Allergies'
-## "ACHOO!"), straight from the trait data. Empty means no text.
-func alert_burst_text() -> String:
-	return _turn_end_alert_burst_text
+## Rolls every `chance`-kind trait triggered `on_turn_end`, each independently.
+## Outcomes that didn't fire are left at their zero defaults. Called once from
+## Player.end_turn(), so every turn the player spends rolls exactly once.
+func check_on_turn_end_chance_effects() -> TurnEndChanceOutcome:
+	var outcome: TurnEndChanceOutcome = TurnEndChanceOutcome.new()
+	if _rolls(_turn_end_alert_burst_chance):
+		outcome.alert_burst_radius = _turn_end_alert_burst_radius
+		outcome.alert_burst_text = _turn_end_alert_burst_text
+	if _rolls(_turn_end_sleep_chance):
+		outcome.sleep_turns = _turn_end_sleep_turns
+		outcome.sleep_text = _turn_end_sleep_text
+	return outcome
 
 func reveals_macguffin_direction() -> bool:
 	return _reveals_macguffin_direction
@@ -147,3 +149,6 @@ func eavesdrop_radius() -> int:
 
 func set_eavesdrop_radius(value: int) -> void:
 	_eavesdrop_radius = value
+
+func _rolls(one_in: int) -> bool:
+	return one_in > 0 and randi() % one_in == 0

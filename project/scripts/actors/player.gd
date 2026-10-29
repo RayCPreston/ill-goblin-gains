@@ -7,7 +7,8 @@ var fov: PlayerFov = PlayerFov.new()
 var traits: PlayerTraitState = PlayerTraitState.new()
 var treasure_hound: TreasureHoundIndicator = TreasureHoundIndicator.new()
 const NOISE_SPREAD_FACTOR: float = 1.0
-const NOISE_TEXT_CHANCE: float = 0.6
+const NOISE_TEXT: String = "*sneak*"
+const NOISE_TEXT_CHANCE: float = 0.3
 const ALERT_BURST_FONT_SIZE: int = 16  # PixelOperator8 stays crisp at multiples of 8
 const ALERT_BURST_COLOR: Color = Color(0.9, 0.15, 0.1, 0.9)
 const ALERT_BURST_SPREAD: float = 4.0
@@ -55,14 +56,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	var action: PlayerInput.Action = PlayerInput.get_input_action(event)
 	if action == PlayerInput.Action.NONE:
 		return
-	waited_last_turn = action == PlayerInput.Action.WAIT
-	_check_guard_sighting()
-	if action == PlayerInput.Action.WAIT:
+	if is_sleeping:
+		sleep_through_turn()
+	elif action == PlayerInput.Action.WAIT:
+		_begin_turn(true)
 		wait()
 	elif action == PlayerInput.Action.MOVE:
+		_begin_turn(false)
 		var direction: Vector2i = PlayerInput.get_move_direction(event)
 		try_move_to(cell + direction)
 	get_viewport().set_input_as_handled()
+
+func _begin_turn(waiting: bool) -> void:
+	waited_last_turn = waiting
+	_check_guard_sighting()
 
 func _check_guard_sighting() -> void:
 	for entity: Entity in TurnManager.get_world_entities():
@@ -98,9 +105,15 @@ func wait() -> void:
 		_emit_noise()
 	super()
 
+func sleep_through_turn() -> void:
+	_begin_turn(true)
+	super()
+
 func end_turn() -> void:
 	if not RunState.is_run_over:
-		_emit_alert_burst(traits.check_on_turn_end_chance_effects())
+		var outcome: TurnEndChanceOutcome = traits.check_on_turn_end_chance_effects()
+		_emit_alert_burst(outcome.alert_burst_radius, outcome.alert_burst_text)
+		fall_asleep(outcome.sleep_turns, outcome.sleep_text)
 	super()
 
 func _compute_fov() -> void:
@@ -109,7 +122,7 @@ func _compute_fov() -> void:
 func _emit_noise(radius_multiplier: int = 1) -> void:
 	var radius: int = noise_radius * radius_multiplier
 	if radius > 0 and randf() < NOISE_TEXT_CHANCE:
-		var request: FloatingTextRequest = FloatingTextRequest.create("*sneak*", cell)
+		var request: FloatingTextRequest = FloatingTextRequest.create(NOISE_TEXT, cell)
 		request.spread_radius = float(radius * Constants.TILE_SIZE) * NOISE_SPREAD_FACTOR
 		GameEvents.text_emitted.emit(request)
 	_alert_guards_within(radius)
@@ -117,13 +130,11 @@ func _emit_noise(radius_multiplier: int = 1) -> void:
 func _emit_smell() -> void:
 	_alert_guards_within(smell_radius)
 
-## A one-off guard-alerting burst (e.g. Allergies' sneeze). `radius` comes
-## straight from traits.check_on_turn_end_chance_effects() — 0 means nothing
-## fired this turn.
-func _emit_alert_burst(radius: int) -> void:
+## A one-off guard-alerting burst (e.g. Allergies' sneeze). A `radius` of 0
+## means nothing fired this turn; an empty `text` shows no words.
+func _emit_alert_burst(radius: int, text: String) -> void:
 	if radius <= 0:
 		return
-	var text: String = traits.alert_burst_text()
 	if not text.is_empty():
 		var request: FloatingTextRequest = FloatingTextRequest.create(text, cell)
 		request.font_size = ALERT_BURST_FONT_SIZE
