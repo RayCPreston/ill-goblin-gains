@@ -7,6 +7,7 @@ var can_overlap: bool = false
 var is_interactable: bool = false
 var is_furniture: bool = false
 var can_be_remembered: bool = true
+var is_layout: bool = false
 var can_hide_player: bool = false
 var blocks_vision: bool = false
 var allows_player_vision: bool = false
@@ -148,20 +149,16 @@ func shake(strength: int = SHAKE_STRENGTH, jolts: int = SHAKE_JOLTS) -> void:
 	_shake_tween.tween_callback(_set_sprite_jolt.bind(Vector2.ZERO))
 
 func refresh_visibility() -> void:
-	var visibility_state = VisionManager.get_state(cell)
-	match visibility_state:
+	match VisionManager.get_state(cell):
 		PlayerFov.VisionState.VISIBLE:
 			visible = true
 			modulate = VisionManager.COLOR_VISIBLE
 		PlayerFov.VisionState.REMEMBERED:
-			if can_be_remembered:
-				modulate = VisionManager.COLOR_REMEMBERED
-				visible = true
-			else:
-				visible = false
+			_show_dimmed_if(can_be_remembered)
+		PlayerFov.VisionState.MAPPED:
+			_show_dimmed_if(is_layout)
 		PlayerFov.VisionState.UNSEEN:
 			visible = false
-	
 
 func world_to_cell(world_pos: Vector2) -> Vector2i:
 	return Constants.world_to_cell(world_pos)
@@ -171,6 +168,10 @@ func cell_to_world(grid_pos: Vector2i) -> Vector2:
 
 func cell_center_to_world(grid_pos: Vector2i) -> Vector2:
 	return Constants.cell_center_to_world(grid_pos)
+
+func _show_dimmed_if(shown: bool) -> void:
+	visible = shown
+	modulate = VisionManager.COLOR_REMEMBERED
 
 func _emit_sleep_text() -> void:
 	if _sleep_text.is_empty():

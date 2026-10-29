@@ -57,53 +57,104 @@ const KNOWN_PERCEPTION_MODES: Array[String] = [
 	"hearing_through_walls",
 ]
 
-const TRAITS_PATH: String = "res://data/traits.json"
+## Authored dispatch: every recognized item action — see docs/design/items.md.
+const KNOWN_ITEM_ACTIONS: Array[String] = [
+	"use",
+]
 
-var _definitions: Dictionary = {}
+## Authored dispatch: every recognized item effect kind — see docs/design/items.md.
+const KNOWN_ITEM_EFFECT_KINDS: Array[String] = [
+	"map_floor",
+]
+
+const TRAITS_PATH: String = "res://data/traits.json"
+const ITEMS_PATH: String = "res://data/items.json"
+
+var _trait_definitions: Dictionary = {}
+var _item_definitions: Dictionary = {}
 
 func _ready() -> void:
-	_load_definitions()
+	_trait_definitions = _load_definitions(TRAITS_PATH, _validate_trait)
+	_item_definitions = _load_definitions(ITEMS_PATH, _validate_item)
 
-func get_definition(id: String) -> Dictionary:
-	return _definitions.get(id, {})
+func get_trait_definition(id: String) -> Dictionary:
+	return _trait_definitions.get(id, {})
 
-func get_ids_by_type(type: String) -> Array[String]:
+func get_trait_ids_by_type(type: String) -> Array[String]:
 	var ids: Array[String] = []
-	for id: String in _definitions:
-		if _definitions[id].get("type", "") == type:
+	for id: String in _trait_definitions:
+		if _trait_definitions[id].get("type", "") == type:
 			ids.append(id)
 	return ids
 
 func apply_traits(ids: Array[String], player: Player) -> void:
 	for id: String in ids:
-		if not _definitions.has(id):
+		if not _trait_definitions.has(id):
 			Log.error("GameData: unknown trait id '%s'" % id)
 			continue
-		var definition: Dictionary = _definitions[id]
+		var definition: Dictionary = _trait_definitions[id]
 		_apply_effect(definition, player)
 		player.traits.applied_ids.append(id)
 
-func _load_definitions() -> void:
-	var file: FileAccess = FileAccess.open(TRAITS_PATH, FileAccess.READ)
+func get_item_definition(id: String) -> Dictionary:
+	return _item_definitions.get(id, {})
+
+func get_item_ids() -> Array[String]:
+	var ids: Array[String] = []
+	ids.assign(_item_definitions.keys())
+	return ids
+
+func grant_items(ids: Array[String], player: Player) -> void:
+	for id: String in ids:
+		if not _item_definitions.has(id):
+			Log.error("GameData: unknown item id '%s'" % id)
+			continue
+		player.items.add(id, int(_item_definitions[id].get("charges", 0)))
+
+func use_item(id: String, player: Player) -> void:
+	var effect: Dictionary = get_item_definition(id).get("effect", {})
+	match effect.get("kind", ""):
+		"map_floor":
+			player.map_floor()
+
+func _load_definitions(path: String, is_valid: Callable) -> Dictionary:
+	var definitions: Dictionary = {}
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		Log.error("GameData: could not open %s" % TRAITS_PATH)
-		return
+		Log.error("GameData: could not open %s" % path)
+		return definitions
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
 	if not (parsed is Array):
-		Log.error("GameData: %s did not contain a JSON array" % TRAITS_PATH)
-		return
+		Log.error("GameData: %s did not contain a JSON array" % path)
+		return definitions
 	for entry: Variant in parsed:
 		if not (entry is Dictionary):
 			continue
 		var definition: Dictionary = entry
 		var id: String = definition.get("id", "")
 		if id.is_empty():
-			Log.error("GameData: trait definition missing an id")
+			Log.error("GameData: a definition in %s is missing an id" % path)
 			continue
-		if _validate(definition):
-			_definitions[id] = definition
+		if is_valid.call(definition):
+			definitions[id] = definition
+	return definitions
 
-func _validate(definition: Dictionary) -> bool:
+func _validate_item(definition: Dictionary) -> bool:
+	var id: String = definition.get("id", "?")
+	var action: String = definition.get("action", "")
+	if not KNOWN_ITEM_ACTIONS.has(action):
+		Log.error("GameData: unrecognized action '%s' on item '%s'" % [action, id])
+		return false
+	if int(definition.get("charges", 0)) < 1:
+		Log.error("GameData: item '%s' needs at least 1 charge" % id)
+		return false
+	var kind: String = definition.get("effect", {}).get("kind", "")
+	if not KNOWN_ITEM_EFFECT_KINDS.has(kind):
+		Log.error("GameData: unrecognized effect kind '%s' on item '%s'" % [kind, id])
+		return false
+	return true
+
+func _validate_trait(definition: Dictionary) -> bool:
 	var id: String = definition.get("id", "?")
 	var effect: Dictionary = definition.get("effect", {})
 	var kind: String = effect.get("kind", "")

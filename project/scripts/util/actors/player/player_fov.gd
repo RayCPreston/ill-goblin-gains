@@ -1,6 +1,8 @@
 class_name PlayerFov
 
-enum VisionState { UNSEEN, REMEMBERED, VISIBLE }
+## MAPPED cells have known layout (from a map, not from sight), so nothing
+## standing on them has been seen.
+enum VisionState { UNSEEN, MAPPED, REMEMBERED, VISIBLE }
 
 var max_range: int = 15
 var min_range: int = 0
@@ -13,6 +15,12 @@ func compute(origin: Vector2i) -> Dictionary:
 	_memory[origin] = VisionState.VISIBLE
 	for quadrant in range(4):
 		_scan(origin, quadrant, 1, -1.0, 1.0)
+	return _memory
+
+func map(cells: Array[Vector2i]) -> Dictionary:
+	for cell: Vector2i in cells:
+		if not _memory.has(cell):
+			_memory[cell] = VisionState.MAPPED
 	return _memory
 
 func get_state(cell: Vector2i) -> VisionState:

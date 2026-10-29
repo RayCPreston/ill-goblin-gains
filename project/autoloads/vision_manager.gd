@@ -30,7 +30,7 @@ func get_cell_color(cell: Vector2i) -> Color:
 	match get_state(cell):
 		PlayerFov.VisionState.UNSEEN: 
 			return COLOR_UNSEEN
-		PlayerFov.VisionState.REMEMBERED: 
+		PlayerFov.VisionState.REMEMBERED, PlayerFov.VisionState.MAPPED:
 			return COLOR_REMEMBERED
 	return COLOR_VISIBLE
 

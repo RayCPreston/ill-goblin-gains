@@ -37,6 +37,16 @@ func is_opaque(cell: Vector2i) -> bool:
 			return true
 	return false
 
+## Every cell with terrain on the current floor.
+func get_layout_cells() -> Array[Vector2i]:
+	var cells: Dictionary = {}
+	for layer in _layers:
+		for cell: Vector2i in layer.get_used_cells():
+			cells[cell] = true
+	var layout: Array[Vector2i] = []
+	layout.assign(cells.keys())
+	return layout
+
 func notify_vision_update() -> void:
 	for layer in _layers:
 		layer.notify_runtime_tile_data_update()
