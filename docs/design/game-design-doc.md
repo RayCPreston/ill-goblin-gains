@@ -67,9 +67,9 @@ The player will have the following actions available to them.
 - Wait
 - Open Inventory
 - Examine Traits
-- Use Equipment
-- Throw Equipment
 - Hide*
+
+Equipment is used only from the inventory: inspect an item and confirm. Each item has exactly one action, use or throw, and using one costs a turn. Opening the inventory is free.
 
 \**Note*\*: The player character will automatically hide if they move into a square occupied by building furniture.
 
@@ -94,10 +94,12 @@ Example negative traits:
 ### Equipment
 When starting a new run, the player will have *n* items available to help them sneak past guards.  These should all be beneficial, but finding the right use-case for them should be challenging.
 
+Each item has a number of charges; an item with no charges left is gone.
+
 Example equipment:
-- Pet rat: Moves in random directions.  When it enters a guards vision cone, the guard will enter the `CURIOUS` state and will follow the pet rat
-- Alarm clock: Will make noise audible within 50 tiles.  All affected guards will enter the `CURIOUS` state and will move to the location until one of them touches/disables the clock
-- Popper x3: Can be thrown to make a noise audible within 15 tiles.  All affected guards will enter the `CURIOUS` state and will move to the location
+- Blueprint: Maps the current floor's layout and doors as remembered.  Reveals no guards, furniture, or the MacGuffin
+- Popper x3: Thrown; a noise burst where it lands.  Guards who hear it enter the `CURIOUS` state and move to it
+- Sleeping Darts x2: Puts a visible guard to sleep for a few turns
 
 ### Last known position (LKP)
 If the player has been spotted, guards will relay a last known position.  Guards will convene on this position until at least one guard touches the tile identified.  Then they will begin to look for the player.  
