@@ -12,7 +12,7 @@ Either ending freezes the game on an end screen, and **R** starts a fresh run at
 
 ```mermaid
 flowchart LR
-    L[Level loads] --> R[Traits rolled + applied]
+    L[Level loads] --> R[Traits + items rolled]
     R --> M[Reveal screen<br/>Enter/Space]
     M --> P[Play]
     P -->|bump a guard,<br/>or a guard bumps you| X[Caught]
@@ -27,7 +27,7 @@ flowchart LR
 
 The game boots straight into the hand-built test mansion, [`scenes/levels/poc.tscn`](../../project/scenes/levels/poc.tscn); there's no main menu yet. Godot readies a scene's children before the scene itself, so by the time `Level._ready()` runs, the player, guards, doors and chest have all registered with their managers. `Level` then hands the floor and wall layers to `TileManager` and emits `GameEvents.level_ready`.
 
-`GameManager` picks that up and deals the loadout (see [traits-and-gamedata.md](traits-and-gamedata.md)). It emits `loadout_rolled`, and the **reveal screen** opens. It lists the rolled traits under "TRAITS" (positive) and "FLAWS" (negative), and blocks play until the player presses Enter or Space.
+`GameManager` picks that up and deals the loadout (see [traits-and-gamedata.md](traits-and-gamedata.md)). It emits `loadout_rolled`, and the **reveal screen** opens. It lists the rolled traits under "TRAITS" (positive) and "FLAWS" (negative) and the items under "EQUIPMENT" ([equipment.md](equipment.md)), and blocks play until the player presses Enter or Space.
 
 ### 2. Play
 
@@ -36,7 +36,7 @@ The goblin's input is only accepted when three things are true:
 - no modal is open (`UiState.modal_open`);
 - it's the player's turn.
 
-Modals block input without costing a turn. Besides the reveal screen, **C** opens the traits screen at any time (press a number for a trait's description, C again to close).
+Modals block input without costing a turn. Besides the reveal screen, **C** opens the traits screen (press a number for a trait's description, C again to close) and **I** opens the inventory, where Enter uses the inspected item for a turn. Each opens only when no other modal is open.
 
 ### 3. The MacGuffin
 
@@ -68,12 +68,12 @@ The **end screen** shows "YOU ESCAPED" or "YOU WERE CAUGHT", plus the cause and 
 | `UiState` | [`autoloads/ui_state.gd`](../../project/autoloads/ui_state.gd) | `modal_open`, the input gate for modals |
 | `MacGuffin` | [`components/macguffin.gd`](../../project/scripts/components/macguffin.gd) | The chest: bump or adjacency pickup |
 | `Player.try_move_to()` / `interact()` | [`actors/player.gd`](../../project/scripts/actors/player.gd) | The map-edge escape check, and being captured |
-| `EndScreen`, `RunStartModal`, `TraitsModal` | [`scripts/ui/`](../../project/scripts/ui/) | The three modals. Each is a `CanvasLayer` in `poc.tscn` that shows and hides itself |
+| `EndScreen`, `RunStartModal`, `TraitsModal`, `InventoryModal` | [`scripts/ui/`](../../project/scripts/ui/) | The modals. Each is a `CanvasLayer` in `poc.tscn` that shows and hides itself. The traits screen and the inventory share `ListModal` |
 
 ## Extending it
 
 - **New run-wide state** (a turn counter, a score): put it on `RunState` and clear it in `RunState.reset()`. If an autoload has to carry state across scenes, reset it in `GameManager._restart_run()`. Anything that lives in the scene needs no reset, because the reload rebuilds it.
-- **A new modal:** copy the `EndScreen`/`TraitsModal` pattern. It's a `CanvasLayer` that sets `UiState.modal_open` while open and listens for its trigger on `GameEvents`.
+- **A new modal:** a `CanvasLayer` that sets `UiState.modal_open` while open, and opens only when no other modal is. A numbered list with a detail panel extends `ListModal` and sets its `toggle_action`. One shown by a game event listens on `GameEvents`, like `RunStartModal`.
 - **A real exit:** replace the map-edge check with an exit (an entity, or a tile flag) that calls `RunState.win()`. The `has_macguffin` rule stays the same.
 - **A MacGuffin with behavior** (the GDD's barking corgi): mechanically a negative trait that switches on at pickup. It belongs in the trait system ([traits-and-gamedata.md](traits-and-gamedata.md)), not in the chest.
 
@@ -89,8 +89,7 @@ The **end screen** shows "YOU ESCAPED" or "YOU WERE CAUGHT", plus the cause and 
 - **A main menu:** title, continue, settings.
 - **A real exit,** tied to a door or room once procedural generation exists.
 - **MacGuffin variety and behavior:** what it is stays unknown until pickup; the corgi barks.
-- **Equipment** in the loadout.
 - **Seeded runs:** the GDD wants runs reproducible from a seed. Today every roll and every guard choice uses unseeded randomness.
 
 ---
-*Last verified against code: `4822104` on 2026-10-28.*
+*Last verified against code: `f924e6c` (+ the feature/equipment-item-system branch) on 2026-10-29.*

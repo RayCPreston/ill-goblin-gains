@@ -14,6 +14,7 @@ Where to look, depending on the question:
 
 - [Game Design Document](design/game-design-doc.md): **source of truth** for mechanics, world, guards, security, and juice.
 - [Traits](design/traits.md): every trait's data definition, the effect-kind schema, and the property reference.
+- [Items](design/items.md): every built item's data definition, the item schema, and the item effect kinds.
 - [Procedural generation](design/procgen.md): early notes; not implemented yet.
 
 ## Systems: current behavior
@@ -21,11 +22,12 @@ Where to look, depending on the question:
 One page per system, written from the code and stamped with the commit it was last verified against. Start with the [overview](systems/README.md): which autoload owns what, the signal map, and a suggested reading order.
 
 - [Traits and GameData](systems/traits-and-gamedata.md): loading, rolling, and applying traits; the six effect kinds; every place gameplay reads them.
+- [Equipment](systems/equipment.md): rolling and holding items, the inventory screen, using an item for a turn, the Blueprint and the `MAPPED` fog state.
 - [VFX and Juice](systems/vfx-and-juice.md): floating text, shake, the smell aura, and how gameplay requests effects without touching them.
 - [Guards](systems/guards.md): PATROL / CURIOUS / ALERT, vision cones, what a sighting does, predictive tracking, movement and capture.
 - [Sound and Smell](systems/sound-and-smell.md): the flood fill, what makes noise, how guards react to hearing, and Eavesdropper's reverse use.
 - [Run Lifecycle](systems/run-lifecycle.md): level load, the reveal, play, capture and escape, the end screen, restart.
-- [Vision and Fog of War](systems/vision-and-fog.md): the goblin's field of view, the three fog states, how tiles, entities and cones are drawn.
+- [Vision and Fog of War](systems/vision-and-fog.md): the goblin's field of view, the four fog states, how tiles, entities and cones are drawn.
 - [Turns and the Grid](systems/turn-and-grid.md): turn order, the grid managers, entity flags and moves, proximity, pathfinding.
 - [Doors](systems/doors.md): closed / peeked / open, what each blocks, guards walking through, the fog-of-war sprite freeze.
 - [Input and Camera](systems/input-and-camera.md): controls, who handles which key, camera zoom and dead-zone following, window, logging.
@@ -54,6 +56,7 @@ Short numbered records: context, decision, alternatives, consequences. Decisions
 - [0018](decisions/0018-grid-dictionaries-no-physics.md): All spatial state lives in grid dictionaries; no physics; pathfinding knows only terrain
 - [0019](decisions/0019-doors-open-by-proximity.md): Doors open and close by proximity, and the goblin can peek through them
 - [0020](decisions/0020-sleeping-turns-wait-for-input.md): A sleeping goblin's turns still wait for the player's input
+- [0021](decisions/0021-mapped-is-its-own-vision-state.md): Map knowledge is its own vision state, `MAPPED`
 
 ## Stories: work in flight
 

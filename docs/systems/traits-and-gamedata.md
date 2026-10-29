@@ -51,11 +51,11 @@ Every `on_turn_end` chance rolls independently. `check_on_turn_end_chance_effect
 
 | Piece | Where | Role |
 |---|---|---|
-| `GameData` | [`autoloads/game_data.gd`](../../project/autoloads/game_data.gd) | Loads and validates definitions, gives the rollable ids by type, and applies effects through the authored dispatch |
+| `GameData` | [`autoloads/game_data.gd`](../../project/autoloads/game_data.gd) | Loads and validates definitions, gives the rollable ids by type, and applies effects through the authored dispatch. It loads items the same way ([equipment.md](equipment.md)) |
 | `PlayerTraitState` | [`util/actors/player/player_trait_state.gd`](../../project/scripts/util/actors/player/player_trait_state.gd) | Holds every non-`stat` effect and exposes the narrow accessors |
 | `GameManager._on_level_ready()` | [`autoloads/game_manager.gd`](../../project/autoloads/game_manager.gd) | Rolls the loadout, applies it, and emits `GameEvents.loadout_rolled` |
 | `PoolRoller` / `RunLoadout` | [`util/pool_roller.gd`](../../project/scripts/util/pool_roller.gd), [`util/run_loadout.gd`](../../project/scripts/util/run_loadout.gd) | Generic "pick N distinct ids" roller, and the record of this run's picks |
-| `RunStartModal` / `TraitsModal` | [`ui/run_start_modal.gd`](../../project/scripts/ui/run_start_modal.gd), [`ui/traits_modal.gd`](../../project/scripts/ui/traits_modal.gd) | The reveal screen (names only), and the **C** screen (press a number for a trait's description) |
+| `RunStartModal` / `TraitsModal` | [`ui/run_start_modal.gd`](../../project/scripts/ui/run_start_modal.gd), [`ui/traits_modal.gd`](../../project/scripts/ui/traits_modal.gd) | The reveal screen (names only), and the **C** screen (press a number for a trait's description), built on `ListModal` |
 | `TurnEndChanceOutcome` | [`util/actors/player/turn_end_chance_outcome.gd`](../../project/scripts/util/actors/player/turn_end_chance_outcome.gd) | What fired on a turn-end roll: fields for each `on_turn_end` outcome type |
 | `TreasureHoundIndicator` | [`util/actors/player/treasure_hound_indicator.gd`](../../project/scripts/util/actors/player/treasure_hound_indicator.gd) | Picks which of the eight direction markers to show |
 
@@ -97,7 +97,6 @@ Where gameplay reads traits:
 ## Not built yet
 
 - **Throwing:** Pitcher and Butterfingers write `throw_range`, but nothing reads it until throwing and equipment exist.
-- **Equipment rolling:** `Constants.STARTING_ITEM_COUNT` (3) is reserved. Items should reuse `PoolRoller` and extend `RunLoadout` with `item_ids`.
 - **Tuning:** most values are starting points, not playtested. See [design/traits.md → Open Items](../design/traits.md#open-items).
 
 ---

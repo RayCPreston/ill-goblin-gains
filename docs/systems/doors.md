@@ -21,7 +21,7 @@ Guards walk through doors like any open floor. A closed door only blocks their *
 
 ### Out of sight, frozen
 
-While a door is out of the goblin's view, its logical state keeps changing as guards pass through, but its **sprite doesn't**. It stays frozen at the last state the goblin actually saw. When the door comes back into view, the sprite catches up. Without this, a door swinging in a remembered corridor would reveal a guard you can't see ([0017](../decisions/0017-nothing-leaks-through-fog-of-war.md)). Doors are furniture, so out of view they stay drawn, dimmed, like other remembered map features.
+While a door is out of the goblin's view, its logical state keeps changing as guards pass through, but its **sprite doesn't**. It stays frozen at the last state the goblin actually saw. When the door comes back into view, the sprite catches up. Without this, a door swinging in a remembered corridor would reveal a guard you can't see ([0017](../decisions/0017-nothing-leaks-through-fog-of-war.md)). Doors are furniture, so out of view they stay drawn, dimmed, like other remembered map features. Doors are also part of the layout (`is_layout`), so a door on a cell the Blueprint mapped is drawn too, dimmed and closed. It has never been seen, so its frozen sprite is still the closed one it starts with, whatever its real state ([equipment.md](equipment.md)).
 
 ## Key pieces
 
@@ -52,4 +52,4 @@ While a door is out of the goblin's view, its logical state keeps changing as gu
 - **Doors tied to procedurally generated rooms,** and possibly the real exit ([0015](../decisions/0015-escape-off-the-map-edge.md)).
 
 ---
-*Last verified against code: `4822104` on 2026-10-28.*
+*Last verified against code: `f924e6c` (+ the feature/equipment-item-system branch) on 2026-10-29.*
