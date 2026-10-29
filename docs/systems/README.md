@@ -14,6 +14,7 @@ New to the code? Read [turn-and-grid](turn-and-grid.md), then [guards](guards.md
 | [Sound and Smell](sound-and-smell.md) | The flood fill, what makes noise, how guards react |
 | [Doors](doors.md) | Closed / peeked / open, guards walking through, the sprite freeze |
 | [Traits and GameData](traits-and-gamedata.md) | Loading, rolling, applying traits; the six effect kinds |
+| [Equipment](equipment.md) | Rolling and holding items, the inventory, using an item, the Blueprint |
 | [Run Lifecycle](run-lifecycle.md) | Load → reveal → play → capture or escape → restart |
 | [VFX and Juice](vfx-and-juice.md) | Floating text, shake, the smell aura |
 | [Input and Camera](input-and-camera.md) | Controls, the camera, the window, logging |
@@ -36,9 +37,9 @@ Every manager is an autoload. Each one owns one responsibility, and the other co
 | `CameraInput` | Zoom keys → zoom requests | [input-and-camera](input-and-camera.md) |
 | `GameEvents` | The global signal bus (no logic) | below |
 | `WorldState` | World alert level, last known position, world-level tracking | [guards](guards.md) |
-| `RunState` | MacGuffin held, run over and its outcome, the loadout | [run-lifecycle](run-lifecycle.md) |
+| `RunState` | MacGuffin held, run over and its outcome, the loadout (traits and items) | [run-lifecycle](run-lifecycle.md) |
 | `VfxManager` | Spawning visual effects; the smell aura | [vfx-and-juice](vfx-and-juice.md) |
-| `GameData` | Trait definitions: loading, validating, applying | [traits-and-gamedata](traits-and-gamedata.md) |
+| `GameData` | Trait and item definitions: loading, validating, applying traits, dispatching item uses | [traits-and-gamedata](traits-and-gamedata.md), [equipment](equipment.md) |
 | `UiState` | Whether a modal is blocking input | [run-lifecycle](run-lifecycle.md) |
 | `GameManager` | Run setup on level load, restart | [run-lifecycle](run-lifecycle.md) |
 
@@ -60,11 +61,11 @@ Every manager is an autoload. Each one owns one responsibility, and the other co
 | Signal | Sent by | Heard by |
 |---|---|---|
 | `turn_ended` | Every `Entity` | `TurnManager` (the player's) |
-| `vision_updated(cells)` | `Player` | `VisionManager` |
+| `vision_updated(cells)` | `Player` (moving, waiting, the Blueprint) | `VisionManager` |
 | `cone_updated(...)` | `Guard` | `VisionManager` |
 | `cell_state_changed` | `VisionManager` | Every `Entity` (to re-check its own visibility) |
 
 The rules for choosing between a signal and a direct call are in the `/goblin-dev` skill.
 
 ---
-*Last verified against code: `4822104` on 2026-10-28.*
+*Last verified against code: `f924e6c` (+ the feature/equipment-item-system branch) on 2026-10-29.*

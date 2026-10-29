@@ -5,6 +5,7 @@ signal vision_updated(cells: Dictionary)
 
 var fov: PlayerFov = PlayerFov.new()
 var traits: PlayerTraitState = PlayerTraitState.new()
+var items: PlayerItemState = PlayerItemState.new()
 var treasure_hound: TreasureHoundIndicator = TreasureHoundIndicator.new()
 const NOISE_SPREAD_FACTOR: float = 1.0
 const NOISE_TEXT: String = "*sneak*"
@@ -47,11 +48,7 @@ func _on_loadout_rolled(_loadout: RunLoadout) -> void:
 	_update_treasure_hound_indicator()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if RunState.is_run_over:
-		return
-	if UiState.modal_open:
-		return
-	if not TurnManager.is_player_turn():
+	if UiState.modal_open or not _can_take_turn():
 		return
 	var action: PlayerInput.Action = PlayerInput.get_input_action(event)
 	if action == PlayerInput.Action.NONE:
@@ -66,6 +63,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		var direction: Vector2i = PlayerInput.get_move_direction(event)
 		try_move_to(cell + direction)
 	get_viewport().set_input_as_handled()
+
+## Spends the turn on one charge of a held item. Returns false, spending
+## nothing, when the goblin can't act (asleep, run over, not its turn).
+func try_use_item(id: String) -> bool:
+	if is_sleeping or not _can_take_turn() or not items.is_held(id):
+		return false
+	_begin_turn(false)
+	GameData.use_item(id, self)
+	items.spend_charge(id)
+	end_turn()
+	return true
+
+func map_floor() -> void:
+	vision_updated.emit(fov.map(TileManager.get_layout_cells()))
+
+func _can_take_turn() -> bool:
+	return not RunState.is_run_over and TurnManager.is_player_turn()
 
 func _begin_turn(waiting: bool) -> void:
 	waited_last_turn = waiting

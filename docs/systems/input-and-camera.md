@@ -13,9 +13,10 @@ The goblin is moved with vi-style keys, one key per direction. The camera starts
 | Wait | `;` | `wait` |
 | Zoom in / out | `=` / `-` | `zoom_in` / `zoom_out` |
 | Traits screen (toggle) | C | `character_menu` |
-| Start the run (reveal screen) | Enter or Space | `confirm` |
+| Inventory (toggle) | I | `inventory` |
+| Start the run (reveal screen); use the inspected item (inventory) | Enter or Space | `confirm` |
 | Restart | R | `restart` |
-| View a trait (traits screen open) | 1–9 | Read directly from the key, not from an input action |
+| View a trait or item (its screen open) | 1–9 | Read directly from the key, not from an input action |
 
 Keys are bound by **physical position**, so the layout stays the same on non-QWERTY keyboards. Each action has exactly one key, apart from `confirm`.
 
@@ -28,7 +29,7 @@ Each listener handles only its own actions, in `_unhandled_input()`:
 | `Player` | Move and wait, translated by `PlayerInput`. Only accepted on the player's turn, with no modal open and the run not over (see [run-lifecycle.md](run-lifecycle.md#2-play)) |
 | `CameraInput` (autoload) | Zoom keys. It emits `GameEvents.zoom_in_requested` / `zoom_out_requested` and never touches the camera directly |
 | `GameManager` | Restart, at any time |
-| `TraitsModal` / `RunStartModal` | C and the number keys, and confirm, while they're relevant |
+| `TraitsModal` / `InventoryModal` / `RunStartModal` | C, I, the number keys, and confirm, while they're relevant |
 
 ### Camera
 

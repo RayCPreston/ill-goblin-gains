@@ -29,7 +29,7 @@ This runs the full scene tree (every `_ready()`, `GameData` validation) with no 
 
 Key names:
 - **Movement:** `n ne e se s sw w nw` (bound to vi keys k u l n j b h y)
-- **Turn and menus:** `wait` (`;`), `enter`/`space` (confirm), `menu` (C, the traits modal)
+- **Turn and menus:** `wait` (`;`), `enter`/`space` (confirm), `menu` (C, the traits modal), `inventory` (I), `1`–`9` (pick an entry in a modal)
 - **View and run:** `zoomin`/`zoomout` (`=`/`-`), `restart` (R)
 
 A run starts on the **Run Start modal**, so send `enter` before anything else. The default zoom is far out; `zoomin*2` makes sprites and text easy to read. The goblin starts at the map's east edge, where the camera doesn't center on it, so walk a few tiles west for a centered view.

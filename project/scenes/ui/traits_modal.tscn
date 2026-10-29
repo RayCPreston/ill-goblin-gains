@@ -18,6 +18,8 @@ corner_radius_bottom_left = 0
 
 [node name="TraitsModal" type="CanvasLayer"]
 script = ExtResource("1_script")
+toggle_action = &"character_menu"
+prompt_text = "Press a number to view a trait."
 
 [node name="Backdrop" type="ColorRect" parent="."]
 layout_mode = 1
@@ -68,6 +70,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(200, 0)
 
 [node name="ListLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ListPanel"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.870588, 0.870588, 0.870588, 1)
 theme_override_fonts/font = ExtResource("3_regular")
@@ -80,6 +83,7 @@ custom_minimum_size = Vector2(280, 0)
 theme_override_constants/separation = 8
 
 [node name="NameLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/DetailPanel"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.870588, 0.870588, 0.870588, 1)
 theme_override_fonts/font = ExtResource("2_bold")
@@ -87,12 +91,13 @@ theme_override_font_sizes/font_size = 18
 text = ""
 
 [node name="DescriptionLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/DetailPanel"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.870588, 0.870588, 0.870588, 1)
 theme_override_fonts/font = ExtResource("3_regular")
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
-text = "Press a number to view a trait."
+text = ""
 
 [node name="HintLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2

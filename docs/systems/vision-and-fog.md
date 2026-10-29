@@ -1,6 +1,6 @@
 # Vision and Fog of War
 
-The goblin sees all the way around, out to 15 tiles, wherever walls allow. What's in view right now is fully lit. Places seen before stay on the map, dimmed, as memory. Places never seen are black. Guards are only shown while in view, and their cones are painted over the tiles you can see.
+The goblin sees all the way around, out to 15 tiles, wherever walls allow. What's in view right now is fully lit. Places seen before stay on the map, dimmed, as memory. Places never seen are black, unless a map (the Blueprint) has shown their layout. Guards are only shown while in view, and their cones are painted over the tiles you can see.
 
 ## How it works
 
@@ -17,15 +17,16 @@ The goblin sees all the way around, out to 15 tiles, wherever walls allow. What'
   - vision-blocking furniture: a closed door blocks it, but a peeked door doesn't, because peeking means the goblin is standing beside it.
   - The blocking cell itself is shown, so you see walls, not just the space in front of them.
 
-Every cell is in one of three states:
+Every cell is in one of four states:
 
 | State | Means | Tiles look |
 |---|---|---|
 | `VISIBLE` | In view this turn | Full color |
 | `REMEMBERED` | Seen before, not now | Dimmed to 40% |
+| `MAPPED` | Never seen, but its layout is known from a map | Dimmed to 40% |
 | `UNSEEN` | Never seen | Black |
 
-Memory is permanent: each recompute turns last turn's `VISIBLE` cells into `REMEMBERED`, then marks the new view. Vision is recomputed when the goblin **moves or waits**. Bump turns don't recompute, since the goblin hasn't moved.
+Memory is permanent: each recompute turns last turn's `VISIBLE` cells into `REMEMBERED`, then marks the new view. `PlayerFov.map()` turns `UNSEEN` cells into `MAPPED` and never touches a cell already seen. Seeing a mapped cell later makes it `VISIBLE` as usual ([0021](../decisions/0021-mapped-is-its-own-vision-state.md), [equipment.md](equipment.md)). Vision is recomputed when the goblin **moves or waits**. Bump turns don't recompute, since the goblin hasn't moved.
 
 ### How it's drawn
 
@@ -33,6 +34,7 @@ Memory is permanent: each recompute turns last turn's `VISIBLE` cells into `REME
 - **Entities:** listen for `VisionManager.cell_state_changed` and update themselves.
   - In view: shown normally.
   - Remembered: furniture is shown dimmed; guards are hidden (`can_be_remembered = false`), so you never see a guard's stale position.
+  - Mapped: hidden, unless the entity is part of the layout (`is_layout`, set by doors), which is shown dimmed. Nothing on a mapped cell has actually been seen.
   - Never seen: hidden.
   - Two overrides: Eavesdropper's `?` guards ([traits-and-gamedata.md](traits-and-gamedata.md)), and doors, which freeze their sprite while out of view ([0017](../decisions/0017-nothing-leaks-through-fog-of-war.md)).
 - **Guard cones:** `VisionManager` paints semi-transparent squares in its own `_draw()`, above the tiles (`z_index` 3), below doors (10) and actors (20).
@@ -50,7 +52,7 @@ Memory is permanent: each recompute turns last turn's `VISIBLE` cells into `REME
 
 | Piece | Where | Role |
 |---|---|---|
-| `PlayerFov` | [`util/actors/player/player_fov.gd`](../../project/scripts/util/actors/player/player_fov.gd) | Shadowcasting, memory, `max_range` / `min_range` |
+| `PlayerFov` | [`util/actors/player/player_fov.gd`](../../project/scripts/util/actors/player/player_fov.gd) | Shadowcasting, memory, `max_range` / `min_range`, `map()` |
 | `VisionManager` | [`autoloads/vision_manager.gd`](../../project/autoloads/vision_manager.gd) | Holds the vision states and guard cones, draws the cones, and broadcasts `cell_state_changed`. Colors and opacities are at the top |
 | `TileUtil` | [`util/tiles/tile_util.gd`](../../project/scripts/util/tiles/tile_util.gd) | Script on the floor and wall layers that applies fog colors to tiles |
 | `Entity.refresh_visibility()` | [`actors/entity.gd`](../../project/scripts/actors/entity.gd) | Default show/dim/hide per state; overridden by `Guard` and `Door` |
@@ -58,7 +60,7 @@ Memory is permanent: each recompute turns last turn's `VISIBLE` cells into `REME
 
 ## Extending it
 
-- **Anything new on the map** (cameras, lasers, items) gets `refresh_visibility()` from `Entity`. Set `can_be_remembered` deliberately: `true` for static things, which you'd remember, and `false` for anything that moves, which shouldn't be shown where it used to be.
+- **Anything new on the map** (cameras, lasers, items) gets `refresh_visibility()` from `Entity`. Set `can_be_remembered` deliberately: `true` for static things, which you'd remember, and `false` for anything that moves, which shouldn't be shown where it used to be. Set `is_layout` only for things a floor plan would show (doors; later stairs and exits).
 - **A new overlay** (camera sweeps, smoke): draw it the way cones are drawn, as translucent shapes in `_draw()` limited to `VISIBLE` cells. Never tint tiles ([0016](../decisions/0016-overlays-drawn-not-tile-modulated.md)).
 - **Anything that changes what the player sees, or that animates:** ask whether it could reveal something happening in unseen space. If it could, gate it on `VISIBLE` ([0017](../decisions/0017-nothing-leaks-through-fog-of-war.md)).
 
@@ -75,4 +77,4 @@ Memory is permanent: each recompute turns last turn's `VISIBLE` cells into `REME
 - **Dogs' unsegmented cones.**
 
 ---
-*Last verified against code: `4822104` on 2026-10-28.*
+*Last verified against code: `f924e6c` (+ the feature/equipment-item-system branch) on 2026-10-29.*

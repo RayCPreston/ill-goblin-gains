@@ -28,7 +28,7 @@ Every item answers one kind of problem: pull a guard away, take a guard out of p
 ## Roadmap
 
 ### Wave 0: the item system
-Story: [equipment-01-item-system-and-blueprint.md](equipment-01-item-system-and-blueprint.md).
+Shipped. How it works now: [systems/equipment.md](../systems/equipment.md); item data: [design/items.md](../design/items.md).
 - **Blueprint** (use, 1 charge): every tile on the current floor becomes REMEMBERED. Doors show closed and greyed out, as remembered doors already do. Guards, furniture, the chest and the MacGuffin stay hidden. With two floors, choosing which floor to map becomes a real decision.
 
 ### Wave 1: aiming, and items that reuse what exists

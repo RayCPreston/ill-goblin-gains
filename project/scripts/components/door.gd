@@ -7,6 +7,7 @@ var _current_animation: StringName = &"closed"
 
 func _ready() -> void:
 	is_furniture = true
+	is_layout = true
 	blocks_vision = true
 	can_overlap = true
 	super()

@@ -59,10 +59,13 @@ Level load → trait roll and reveal → play → capture or escape → end scre
 ### Traits
 All 23 traits are shipped. Loading, rolling, applying, the six effect kinds, and every gameplay touchpoint: `docs/systems/traits-and-gamedata.md`. Key decisions: authored dispatch, no reflection (`docs/decisions/0001`); narrow accessors (`0002`); the `chance` kind (`0003`); turn-end chances roll every spent turn (`0005`). Sleep (`Entity.fall_asleep()`, Narcolepsy) is in `docs/systems/turn-and-grid.md`; a sleeping goblin's turns still wait for input (`0020`).
 
+### Equipment
+Items roll at run start (up to `Constants.STARTING_ITEM_COUNT`), live in `PlayerItemState`, and are used from the **I** inventory for one turn. Only the Blueprint is built; it maps the floor as the `MAPPED` fog state: `docs/systems/equipment.md`, item data in `docs/design/items.md`, roadmap in `docs/stories/equipment-epic.md`. Key decision: mapped cells are their own vision state (`docs/decisions/0021`).
+
 ## What's Next
 
 ### 1. Run Start Flow — Main Menu Still Missing
-The game boots straight into a run. Trait rolling and the reveal modal exist (see the traits systems page); a main menu (title, continue, settings) doesn't. Equipment rolling waits on item content: `Constants.STARTING_ITEM_COUNT` is reserved, and items should reuse `PoolRoller`.
+The game boots straight into a run. Trait and item rolling and the reveal modal exist (see the traits and equipment systems pages); a main menu (title, continue, settings) doesn't.
 
 ### 2. Furniture & Hiding System
 Furniture is partially modeled: `Entity.is_furniture`, `Entity.can_hide_player` (field already exists, unused), `GridManager._furniture` dict. Needs: JSON definitions with a `hideable` field, player hide/unhide action, and guard detection interaction when player is hidden. See GDD for furniture types and hiding rules.

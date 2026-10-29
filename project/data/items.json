@@ -1,0 +1,12 @@
+[
+  {
+    "id": "blueprint",
+    "name": "Blueprint",
+    "description": "A floor plan of this floor. Using it maps every wall, room and door you haven't seen. It shows nothing that's in them.",
+    "action": "use",
+    "charges": 1,
+    "effect": {
+      "kind": "map_floor"
+    }
+  }
+]
