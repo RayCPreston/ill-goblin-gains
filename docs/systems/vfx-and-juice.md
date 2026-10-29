@@ -36,14 +36,21 @@ Each `FloatingText` behaves like this:
 
 | Effect | When | Look |
 |---|---|---|
-| `*sneak*` | On 60% of the goblin's steps, if its noise radius is above 0 | Default size and color. Its scatter is the noise radius in pixels (× `NOISE_SPREAD_FACTOR`, currently 1.0), so it doubles as a rough read of how far the noise carried. Clumsy's stumbles scatter wider ([0007](../decisions/0007-noise-shown-as-floating-text.md)) |
+| `*sneak*` | On 30% of the goblin's noisy turns, if its noise radius is above 0: every step, plus waits with Fidgety. Never on a bump, and never on a silent wait | Default size and color. Its scatter is the noise radius in pixels (× `NOISE_SPREAD_FACTOR`, currently 1.0), so it doubles as a rough read of how far the noise carried. Clumsy's stumbles scatter wider ([0007](../decisions/0007-noise-shown-as-floating-text.md)) |
 | The alert burst text (Allergies: "ACHOO!") | When an `alert_burst` chance fires | 16px, red, 4px spread, rises 20px over 1.4s, plus a shake. The word comes from the trait data |
+| The sleep text (Narcolepsy: `*snooze*`) | When an entity falls asleep, and on each turn it spends asleep | 8px, light grey at 90% opacity, 3px spread, rises 14px over 1.2s. The opposite of the alert burst: small and quiet. The word comes from the trait data |
 
 **Volume convention:** `*asterisks*` mean quiet and self-narrated, and no asterisks mean loud. Size, opacity and color scale with how much the moment matters.
 
 ### Shake
 
 `Entity.shake(strength, jolts)` jolts the entity's `Sprite2D` child side to side in whole pixels, with the jolts shrinking (one every 0.04s), then settles it back. It moves the sprite, never the `Entity` itself, so it can't fight the movement tween or drag the camera. The alert burst uses 2px over 8 jolts. Any entity with a `Sprite2D` child can shake.
+
+### Sleep tip-over
+
+A sleeping entity lies on its side. When it falls asleep, its `Sprite2D` tips 90° clockwise over 0.15s, speeding up like a fall (`SLEEP_TIP_ANGLE`, `SLEEP_TIP_DURATION` on `Entity`). When it wakes, the sprite snaps upright. It pivots around the tile's center, because sprites are anchored at their top-left corner, so a sleeper never leaves its tile. At exactly 90° every pixel stays whole and the art stays crisp.
+
+Shake and tip-over both move the sprite, so `Entity` combines them in one place (`_update_sprite_transform()`): the authored rest position, the tilt's pivot correction, and the shake jolt. A sneeze can shake a goblin that's lying down, and neither effect undoes the other.
 
 ### Smell aura
 
@@ -61,13 +68,15 @@ At radius 0 (anyone without Smelly), it's invisible. Otherwise a shader draws a 
 | `FloatingText` | [`vfx/floating_text.gd`](../../project/scripts/vfx/floating_text.gd) | One word: placement, animation, pixel snapping. Feel constants live at the top of the file |
 | `SmellAura` | [`vfx/smell_aura.gd`](../../project/scripts/vfx/smell_aura.gd), [`shaders/smell_aura.gdshader`](../../project/resources/shaders/smell_aura.gdshader) | The persistent haze; the look is tuned through shader uniforms |
 | `Entity.shake()` | [`actors/entity.gd`](../../project/scripts/actors/entity.gd) | Sprite jolt |
-| Emit sites | [`actors/player.gd`](../../project/scripts/actors/player.gd) `_emit_noise()`, `_emit_alert_burst()` | Where today's text effects are requested; the tuning constants sit at the top of the file |
+| Sleep tip-over | [`actors/entity.gd`](../../project/scripts/actors/entity.gd) `_tip_over()`, `_stand_up()` | Lays a sleeping entity's sprite on its side, and stands it back up |
+| Emit sites | [`actors/player.gd`](../../project/scripts/actors/player.gd) `_emit_noise()`, `_emit_alert_burst()`; [`actors/entity.gd`](../../project/scripts/actors/entity.gd) `_emit_sleep_text()` | Where today's text effects are requested; the tuning constants sit at the top of each file |
 
 ## Extending it
 
 - **A new text effect:** at the gameplay site, build a request with `FloatingTextRequest.create(text, cell)`, set the fields that differ, and emit `GameEvents.text_emitted`. Follow the volume convention. If the effect comes from a trait, put the text in the trait data, not in code.
 - **A new kind of effect:** add a script-only node in `scripts/vfx/` (no `.tscn`), a request signal on `GameEvents`, and a handler in `VfxManager`. Gameplay only ever emits.
 - **Shaking something else:** call `entity.shake(strength, jolts)`.
+- **Another sprite pose** (e.g. a stunned lean): add its own offset or angle to `_update_sprite_transform()` rather than setting the sprite's `position` or `rotation` directly, or it will fight shake and tip-over.
 - **Another always-on aura:** follow `SmellAura`: `VfxManager` creates it lazily, then repositions and resizes it every frame from gameplay state.
 
 ## Gotchas
@@ -80,10 +89,9 @@ At radius 0 (anyone without Smelly), it's invisible. Otherwise a shader draws a 
 
 ## Not built yet
 
-- **Narcolepsy's z's:** small, quiet z's over whoever is sleeping. See [stories/trait-story-22-narcolepsy.md](../stories/trait-story-22-narcolepsy.md).
 - **Loud stumble text for Clumsy** (e.g. `thump`): today a stumble only widens the `*sneak*` scatter.
 - **Guards speaking as they pass, and the corgi MacGuffin's visible barks:** from the GDD's [Juice section](../design/game-design-doc.md#juice).
 - **Pickup and trait-proc callouts.**
 
 ---
-*Last verified against code: `4822104` on 2026-10-28.*
+*Last verified against code: `523d19e` (+ the Narcolepsy branch) on 2026-10-28.*

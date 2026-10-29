@@ -55,15 +55,15 @@ Bridges each trait's data to where it actually needs to be read in code. Consoli
 | `hearing_through_walls` (perception mode) | New reverse `ProximityAlert` query + `?` marker rendering | Independent of `Guard`/`VisionManager`'s existing visibility state — the guard stays properly UNSEEN under normal fog-of-war; this draws an additive marker on top |
 | `smell_radius` | `Player.smell_radius` | Default `0`, so only Smelly holders smell. Drives both the guard-alerting flood fill and the smell haze (see `docs/systems/sound-and-smell.md`) |
 | `vision_min_range` | New `PlayerFov.min_range` field | Doesn't exist in code yet. Needs adding, plus a `row >= min_range` condition on the existing `VisionState.VISIBLE`-marking line in `_scan()`. Contained change — the shadow-splitting recursion is driven entirely by `is_opaque` transitions, independent of the visibility-marking decision, so this doesn't touch the recursion or guard detection (a fully separate system) at all |
-| `on_move` (chance trigger) | `Player.move_to()` | Same point `_emit_noise()`/`_emit_smell()` already fire from |
+| `on_move` (chance trigger) | `Player.move_to()` | Same point the step's noise and smell fire from |
 | `on_turn_end` (chance trigger) | `Player.end_turn()` | Rolls once on every turn the player spends — moves, waits, bumps, and interacts alike — skipped once the run is over |
 | `alert_burst` (chance outcome type) | `Player._emit_alert_burst()` → `ProximityAlert` | Same guard reaction as a sound pulse, at the outcome's own `radius`. Juice fires from the same method: the outcome's `text` as loud red floating text (none if `text` is omitted) plus a sprite shake via `Entity.shake()` |
-| `sleep` (chance outcome type) | New `Entity.is_sleeping` field + turn-skip enforcement in `Player._unhandled_input()` | Deferred — see Narcolepsy's note. `is_sleeping` belongs on `Entity`, not `Player`, so a future item like sleeping darts can put a `Guard` to sleep with the same flag |
+| `sleep` (chance outcome type) | `Entity.fall_asleep()` → `Entity.is_sleeping` | Sleeps for the outcome's `duration` turns, showing its `text` (Narcolepsy: `*snooze*`) as small, quiet floating text on falling asleep and each slept turn, and lays the sleeper's sprite on its side until it wakes. While asleep, `Player._unhandled_input()` turns any move or wait input into a slept turn; the world never moves without input (`docs/decisions/0020`). Lives on `Entity`, not `Player`, so a future item like sleeping darts can put a `Guard` to sleep with the same state |
 | `emits_noise_while_waiting` (flag) | `Player.wait()` | `wait()` currently never emits noise at all — this flag adds a conditional call there |
 
 ## Implementation Architecture
 
-Full detail in `docs/stories/game-data-trait-application.md` — the short version, worth repeating here since it's a hard requirement, not a preference: no gameplay script outside `GameData` and a new `PlayerTraitState` utility should ever contain a `match`/`if` chain keyed on a trait id, effect kind, or any of the names in the reference table above. Every call site a trait touches (`GuardStateMachine._check_detection()`, `Guard.interact()`, `MacGuffin.on_proximity_changed()`, etc.) gets exactly one clean, narrowly-named method call — e.g. `player.traits.inner_range_modifier()` — never inline trait-resolution logic. Dispatch logic lives in exactly one place. Also: no `Object.set()`/`set_indexed()`/reflection anywhere in the system — the `property`/`parameter`/`flag` names above are resolved through an authored dispatch (a `match` or a `Dictionary` of `Callable`s), not blind string-to-member resolution.
+How it works today: `docs/systems/traits-and-gamedata.md` (decisions `0001`, `0002`). Worth repeating here since it's a hard requirement, not a preference: no gameplay script outside `GameData` and `PlayerTraitState` should ever contain a `match`/`if` chain keyed on a trait id, effect kind, or any of the names in the reference table above. Every call site a trait touches (`GuardStateMachine._check_detection()`, `Guard.interact()`, `MacGuffin.on_proximity_changed()`, etc.) gets exactly one clean, narrowly-named method call — e.g. `player.traits.inner_range_modifier()` — never inline trait-resolution logic. Dispatch logic lives in exactly one place. Also: no `Object.set()`/`set_indexed()`/reflection anywhere in the system — the `property`/`parameter`/`flag` names above are resolved through an authored dispatch (a `match` or a `Dictionary` of `Callable`s), not blind string-to-member resolution.
 
 ## Positive Traits
 
@@ -335,14 +335,14 @@ Full detail in `docs/stories/game-data-trait-application.md` — the short versi
   "name": "Narcolepsy",
   "type": "negative",
   "description": "You have a chance to fall asleep for a few turns every so often, unable to act.",
-  "note": "Needs Entity.is_sleeping (see Property/Parameter Reference above) and turn-skip enforcement in Player input handling — a genuinely new mechanism, not just applying a stat. Flagged for its own implementation pass, same treatment as Disguise.",
   "effect": {
     "kind": "chance",
     "trigger": "on_turn_end",
     "one_in": 50,
     "outcome": {
       "type": "sleep",
-      "duration": 3
+      "duration": 3,
+      "text": "*snooze*"
     }
   }
 }

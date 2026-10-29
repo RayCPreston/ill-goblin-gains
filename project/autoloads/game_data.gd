@@ -48,6 +48,7 @@ const KNOWN_CHANCE_TRIGGERS: Array[String] = [
 const KNOWN_CHANCE_OUTCOME_TYPES: Array[String] = [
 	"noise_multiplier",
 	"alert_burst",
+	"sleep",
 ]
 
 ## Authored dispatch: every recognized `perception`-kind mode — see
@@ -226,6 +227,10 @@ func _apply_chance(effect: Dictionary, player: Player) -> void:
 		var radius: int = int(outcome.get("radius", 0))
 		var text: String = outcome.get("text", "")
 		player.traits.set_turn_end_alert_burst_chance(one_in, radius, text)
+	elif trigger == "on_turn_end" and outcome_type == "sleep":
+		var duration: int = int(outcome.get("duration", 0))
+		var text: String = outcome.get("text", "")
+		player.traits.set_turn_end_sleep_chance(one_in, duration, text)
 
 func _apply_perception(effect: Dictionary, player: Player) -> void:
 	var mode: String = effect.get("mode", "")

@@ -34,7 +34,7 @@ Restarting (**R**) reloads the scene, which builds a fresh `Player` and `PlayerT
 | `detection_modifier` | Offsets and a suppression switch | Guard vision and detection | Camouflage, Big Target, Cold Trail, Persistent Trail, Vanishing Act, Statue |
 | `flag` | Yes/no switches | MacGuffin pickup, waiting, the MacGuffin compass | Cat Burglar, Fidgety, Treasure Hound |
 | `charge` | Limited-use counts | Capture and detection | Slippery, Disguise |
-| `chance` | Odds plus an outcome, rolled on a trigger ([0003](../decisions/0003-chance-effect-kind.md)) | Moving (Clumsy) and ending a turn (Allergies) | Clumsy, Allergies |
+| `chance` | Odds plus an outcome, rolled on a trigger ([0003](../decisions/0003-chance-effect-kind.md)) | Moving (Clumsy) and ending a turn (Allergies, Narcolepsy) | Clumsy, Allergies, Narcolepsy |
 | `perception` | A radius | Guard visibility through walls | Eavesdropper |
 
 A few traits do more than adjust a number:
@@ -43,6 +43,9 @@ A few traits do more than adjust a number:
 - **Treasure Hound:** a small marker on the goblin's edge, in one of eight directions, points toward the MacGuffin until it's picked up.
 - **Eavesdropper:** guards behind walls within radius 6 show as a `?`. It uses the same corner-wrapping flood fill as sound, so it reveals that *something* is there, not which guard or what state it's in.
 - **Allergies:** each turn the player spends has a 1-in-25 chance of a sneeze. The sneeze alerts guards within 10 tiles, shows the trait's `text` ("ACHOO!") as loud red floating text, and shakes the goblin ([0005](../decisions/0005-turn-end-chance-rolls-every-spent-turn.md)).
+- **Narcolepsy:** each turn the player spends has a 1-in-50 chance of falling asleep for 3 turns. While asleep, every move or wait input spends a turn in place instead, each showing the trait's `text` (`*snooze*`) ([0020](../decisions/0020-sleeping-turns-wait-for-input.md); mechanics in [turn-and-grid](turn-and-grid.md#sleeping)).
+
+Every `on_turn_end` chance rolls independently. `check_on_turn_end_chance_effects()` returns a `TurnEndChanceOutcome` with fields for each outcome type: the burst radius and text, and the sleep length and text. Anything that didn't fire stays 0 or empty.
 
 ## Key pieces
 
@@ -53,6 +56,7 @@ A few traits do more than adjust a number:
 | `GameManager._on_level_ready()` | [`autoloads/game_manager.gd`](../../project/autoloads/game_manager.gd) | Rolls the loadout, applies it, and emits `GameEvents.loadout_rolled` |
 | `PoolRoller` / `RunLoadout` | [`util/pool_roller.gd`](../../project/scripts/util/pool_roller.gd), [`util/run_loadout.gd`](../../project/scripts/util/run_loadout.gd) | Generic "pick N distinct ids" roller, and the record of this run's picks |
 | `RunStartModal` / `TraitsModal` | [`ui/run_start_modal.gd`](../../project/scripts/ui/run_start_modal.gd), [`ui/traits_modal.gd`](../../project/scripts/ui/traits_modal.gd) | The reveal screen (names only), and the **C** screen (press a number for a trait's description) |
+| `TurnEndChanceOutcome` | [`util/actors/player/turn_end_chance_outcome.gd`](../../project/scripts/util/actors/player/turn_end_chance_outcome.gd) | What fired on a turn-end roll: fields for each `on_turn_end` outcome type |
 | `TreasureHoundIndicator` | [`util/actors/player/treasure_hound_indicator.gd`](../../project/scripts/util/actors/player/treasure_hound_indicator.gd) | Picks which of the eight direction markers to show |
 
 Where gameplay reads traits:
@@ -66,7 +70,7 @@ Where gameplay reads traits:
 | `chest_opens_on_adjacent()` | `MacGuffin.on_proximity_changed()` |
 | `emits_noise_while_waiting()` | `Player.wait()` |
 | `check_on_move_chance_effects()` | `Player.move_to()` |
-| `check_on_turn_end_chance_effects()`, `alert_burst_text()` | `Player.end_turn()` |
+| `check_on_turn_end_chance_effects()` | `Player.end_turn()` |
 | `reveals_macguffin_direction()` | `Player._update_treasure_hound_indicator()` |
 | `eavesdrop_radius()` | `Guard._is_eavesdropped()` |
 | `get_applied_ids()` | `TraitsModal` |
@@ -77,7 +81,7 @@ Where gameplay reads traits:
 - **A new property, flag, trigger or outcome on an existing kind** takes four touches:
   - its name in the matching `KNOWN_*` list in `GameData`;
   - one line in that kind's `_apply_*` dispatch;
-  - one narrowly named accessor on `PlayerTraitState`;
+  - one narrowly named accessor on `PlayerTraitState` (for a new `on_turn_end` outcome: fields on `TurnEndChanceOutcome` and a roll in `check_on_turn_end_chance_effects()`);
   - one call at the gameplay site.
 
   Add a row to the Property/Parameter Reference table in [design/traits.md](../design/traits.md).
@@ -92,10 +96,9 @@ Where gameplay reads traits:
 
 ## Not built yet
 
-- **Narcolepsy:** the last trait. See [stories/trait-story-22-narcolepsy.md](../stories/trait-story-22-narcolepsy.md).
 - **Throwing:** Pitcher and Butterfingers write `throw_range`, but nothing reads it until throwing and equipment exist.
 - **Equipment rolling:** `Constants.STARTING_ITEM_COUNT` (3) is reserved. Items should reuse `PoolRoller` and extend `RunLoadout` with `item_ids`.
 - **Tuning:** most values are starting points, not playtested. See [design/traits.md → Open Items](../design/traits.md#open-items).
 
 ---
-*Last verified against code: `4822104` on 2026-10-28.*
+*Last verified against code: `523d19e` (+ the Narcolepsy branch) on 2026-10-28.*

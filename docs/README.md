@@ -53,10 +53,11 @@ Short numbered records: context, decision, alternatives, consequences. Decisions
 - [0017](decisions/0017-nothing-leaks-through-fog-of-war.md): Nothing on screen may reveal what's happening in unseen space
 - [0018](decisions/0018-grid-dictionaries-no-physics.md): All spatial state lives in grid dictionaries; no physics; pathfinding knows only terrain
 - [0019](decisions/0019-doors-open-by-proximity.md): Doors open and close by proximity, and the goblin can peek through them
+- [0020](decisions/0020-sleeping-turns-wait-for-input.md): A sleeping goblin's turns still wait for the player's input
 
 ## Stories: work in flight
 
-Specs for work being built. When a story ships, it's **harvested**: what was built goes into `systems/`, notable choices go into `decisions/`, and then the story is deleted.
+Specs for work being built. When a story ships, it's **harvested**: what was built goes into `systems/`, notable choices go into `decisions/`, and then the story is deleted. [stories/README.md](stories/README.md) covers the format, acceptance criteria, and lifecycle.
 
 ## Bugs: known and not yet fixed
 
