@@ -57,7 +57,7 @@ Short numbered records: context, decision, alternatives, consequences. Decisions
 
 ## Stories: work in flight
 
-Specs for work being built. When a story ships, it's **harvested**: what was built goes into `systems/`, notable choices go into `decisions/`, and then the story is deleted.
+Specs for work being built. When a story ships, it's **harvested**: what was built goes into `systems/`, notable choices go into `decisions/`, and then the story is deleted. [stories/README.md](stories/README.md) covers the format, acceptance criteria, and lifecycle.
 
 ## Bugs: known and not yet fixed
 
