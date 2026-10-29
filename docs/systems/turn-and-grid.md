@@ -16,6 +16,12 @@ The game is a grid of 16×16 tiles, and time moves in turns: the goblin acts, th
 
 The whole world turn runs instantly, within the same frame as the keypress. Movement *animation* happens afterwards: each entity's sprite slides to its new cell over 0.3s, and a new move cuts any slide in progress short. So rapid keypresses are never queued behind animation.
 
+### Sleeping
+
+Any entity can be put to sleep for a number of turns with `fall_asleep(turns, text)`. `is_sleeping` stays true until those turns are spent. Today only Narcolepsy uses it, on the goblin.
+
+The world still waits for the player while the goblin sleeps ([0020](../decisions/0020-sleeping-turns-wait-for-input.md)). Any move or wait input spends one slept turn (`sleep_through_turn()`) instead of doing what was pressed: the goblin stays put, the guards' pre-move sighting check runs as on any other turn, the sleep text (`*snooze*`) floats off the sleeper, and the goblin waits. A slept turn counts as waiting for Statue, and Fidgety still makes noise. The sleep text also appears the moment the goblin falls asleep, and the sprite tips onto its side until it wakes ([vfx-and-juice](vfx-and-juice.md#sleep-tip-over)). Falling asleep again mid-sleep keeps the longer count, so a sleep is never cut short.
+
 ### The grid
 
 Positions are `Vector2i` cells. `Constants` converts between cells and pixels, including a cell's center. The map is 72×45 cells (`MapConfig`).
@@ -61,7 +67,7 @@ Whatever happens, the turn ends. A successful move updates the dictionaries, the
 | `TurnManager` | [`autoloads/turn_manager.gd`](../../project/autoloads/turn_manager.gd) | Turn phase, the player's turn, running the world turn in registration order |
 | `GridManager` | [`autoloads/grid_manager.gd`](../../project/autoloads/grid_manager.gd) | Actor and furniture dictionaries, moves, swaps, availability, proximity notifications |
 | `TileManager` | [`autoloads/tile_manager.gd`](../../project/autoloads/tile_manager.gd) | Terrain queries, bounds, the A* grid, refreshing fog on the tile layers |
-| `Entity` | [`actors/entity.gd`](../../project/scripts/actors/entity.gd) | Registration, the move-attempt order, the movement tween, flags, `shake()` |
+| `Entity` | [`actors/entity.gd`](../../project/scripts/actors/entity.gd) | Registration, the move-attempt order, the movement tween, flags, `shake()`, sleep |
 | `Constants` / `MapConfig` | [`autoloads/constants.gd`](../../project/autoloads/constants.gd), [`autoloads/map_config.gd`](../../project/autoloads/map_config.gd) | Tile size, direction vectors, cell↔pixel conversion; map dimensions |
 
 ## Extending it
@@ -83,6 +89,7 @@ Whatever happens, the turn ends. A successful move updates the dictionaries, the
 - **Map size following resolution** (GDD): `MapConfig.calculate_map_dimensions()` exists, with limits from 40×20 to 100×60, but nothing calls it. The map is always 72×45.
 - **Stairs and multiple floors** (GDD: two floors, stairs crossed in one turn).
 - **Guards trading places** when they meet (GDD): swapping is supported by the grid, but guards just wait.
+- **Sleeping guards** (e.g. a sleeping dart): sleep state and its text live on `Entity`, but only the goblin's input spends slept turns. `TurnManager` would need to call `sleep_through_turn()` instead of `take_turn()` for a sleeping guard, and its vision would need to switch off.
 
 ---
-*Last verified against code: `4822104` on 2026-10-28.*
+*Last verified against code: `523d19e` (+ the Narcolepsy branch) on 2026-10-28.*

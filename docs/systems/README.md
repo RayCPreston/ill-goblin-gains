@@ -51,7 +51,7 @@ Every manager is an autoload. Each one owns one responsibility, and the other co
 | `level_ready` | `Level` | `GameManager` |
 | `loadout_rolled(loadout)` | `GameManager` | `RunStartModal`, `Player` |
 | `run_ended(won, cause)` | `RunState` | `EndScreen` |
-| `text_emitted(request)` | `Player` | `VfxManager` |
+| `text_emitted(request)` | `Player`, `Entity` (sleep text) | `VfxManager` |
 | `player_pos_updated(pos)` | `Player` | Camera |
 | `zoom_in_requested` / `zoom_out_requested` | `CameraInput` | Camera |
 

@@ -56,15 +56,15 @@ Closed / peeked / open by proximity, the goblin-only peek, guards walking throug
 ### Run Lifecycle
 Level load → trait roll and reveal → play → capture or escape → end screen → restart (R reloads the scene): `docs/systems/run-lifecycle.md`. Key decisions: bumping is how actors interact, for capture and MacGuffin pickup (`docs/decisions/0013`); `RunState` plus freeze plus restart-by-reload (`0014`); escaping off the map edge is a placeholder until procgen places exits (`0015`).
 
+### Traits
+All 23 traits are shipped. Loading, rolling, applying, the six effect kinds, and every gameplay touchpoint: `docs/systems/traits-and-gamedata.md`. Key decisions: authored dispatch, no reflection (`docs/decisions/0001`); narrow accessors (`0002`); the `chance` kind (`0003`); turn-end chances roll every spent turn (`0005`). Sleep (`Entity.fall_asleep()`, Narcolepsy) is in `docs/systems/turn-and-grid.md`; a sleeping goblin's turns still wait for input (`0020`).
+
 ## What's Next
 
-### 1. Traits — 22 of 23 Shipped
-How the trait system works (loading, rolling, applying, the six effect kinds, every gameplay touchpoint): `docs/systems/traits-and-gamedata.md`. Narcolepsy is the last trait (`docs/stories/trait-story-22-narcolepsy.md`); the epic `docs/stories/game-data-trait-application.md` stays until it ships.
-
-### 2. Run Start Flow — Main Menu Still Missing
+### 1. Run Start Flow — Main Menu Still Missing
 The game boots straight into a run. Trait rolling and the reveal modal exist (see the traits systems page); a main menu (title, continue, settings) doesn't. Equipment rolling waits on item content: `Constants.STARTING_ITEM_COUNT` is reserved, and items should reuse `PoolRoller`.
 
-### 3. Furniture & Hiding System
+### 2. Furniture & Hiding System
 Furniture is partially modeled: `Entity.is_furniture`, `Entity.can_hide_player` (field already exists, unused), `GridManager._furniture` dict. Needs: JSON definitions with a `hideable` field, player hide/unhide action, and guard detection interaction when player is hidden. See GDD for furniture types and hiding rules.
 
 ## Further Out
